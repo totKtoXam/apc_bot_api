@@ -120,6 +120,8 @@ namespace apc_bot_api
             
             app.UseAuthorization();
 
+            TelegramBot.BotInitialization.GetAsync().Wait();    //// Вызов GetAsyns() для инициализации Телеграм бота и Webhook-а
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

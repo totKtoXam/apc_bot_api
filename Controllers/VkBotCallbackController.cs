@@ -26,7 +26,7 @@ namespace apc_bot_api.Controllers
         }
 
         [HttpPost]
-        public IActionResult Callback([FromBody] EventUpdate eventUpdate)
+        public IActionResult Callback([FromBody] VkBot.EventUpdate eventUpdate)
         {
             switch (eventUpdate.Type)
             {
