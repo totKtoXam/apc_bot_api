@@ -5,6 +5,9 @@ project.lock.json
 *.pyc
 nupkg/
 
+#Azure Deploy
+publish
+
 # Visual Studio Code
 .vscode
 
