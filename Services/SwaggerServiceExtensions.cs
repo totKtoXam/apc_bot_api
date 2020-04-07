@@ -86,7 +86,7 @@ namespace apc_bot_api.Services
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1.0/swagger.json", "AGoS restAPI v1.0");
-                // c.RoutePrefix = string.Empty;
+                c.RoutePrefix = string.Empty;
                 c.RoutePrefix = "api";
             });
  
