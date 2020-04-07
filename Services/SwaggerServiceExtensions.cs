@@ -15,7 +15,7 @@ namespace apc_bot_api.Services
         {
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1.0", new OpenApiInfo { Title = "AGoS restAPI", Version = "v1.0" });
+                c.SwaggerDoc("v1.0", new OpenApiInfo { Title = "APC BOTs restAPI", Version = "v1.0" });
 
                 // c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 // {
@@ -85,7 +85,7 @@ namespace apc_bot_api.Services
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1.0/swagger.json", "AGoS restAPI v1.0");
+                c.SwaggerEndpoint("/swagger/v1.0/swagger.json", "APC BOTs restAPI v1.0");
                 c.RoutePrefix = string.Empty;
                 c.RoutePrefix = "api";
             });

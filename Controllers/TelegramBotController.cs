@@ -31,12 +31,6 @@ namespace apc_bot_api.Controllers
             return Ok();
         }
 
-        [HttpPost]
-        public IActionResult PostQuery()
-        {
-            return Ok("The httpPost query is success");
-        }
-
         [HttpGet]
         public IActionResult GetBotName ()
         {
