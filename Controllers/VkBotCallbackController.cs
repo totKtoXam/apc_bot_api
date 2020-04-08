@@ -28,6 +28,9 @@ namespace apc_bot_api.Controllers
         [HttpPost]
         public IActionResult Callback([FromBody] VkBot.EventUpdate eventUpdate)
         {
+            if (eventUpdate.Secret != VkBot.BotApiParams.SecretKey)
+                return BadRequest();
+             
             switch (eventUpdate.Type)
             {
                 case "confirmation":

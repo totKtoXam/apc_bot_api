@@ -17,6 +17,11 @@ namespace apc_bot_api.Models.Bots
             /// Ключ для подтверждения сервера
             /// </summary>
             public const string ServerConfirmationKey   = "49cb270d";
+
+            /// <summary>
+            /// Секретный ключ сервера вк, который удостоверяет, что запрос был отправлен от них сервера
+            /// </summary>
+            public const string SecretKey               = "Uagcf4K4RRchIyHQlNjHWlIZdb35gsLe";
             
         }
 
@@ -41,6 +46,11 @@ namespace apc_bot_api.Models.Bots
             /// </summary>
             [JsonProperty("group_id")]
             public long     GroupId     { get; set; }
+
+            /// <summary>
+            /// Секретный ключ сервера вк, который удостоверяет, что запрос был отправлен от них сервера
+            /// </summary>
+            public string   Secret      { get; set; }
         }
     }
 }
