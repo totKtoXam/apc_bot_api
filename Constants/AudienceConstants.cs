@@ -1,7 +1,8 @@
 namespace apc_bot_api.Constants
 {
-    public class AudienceConstants
+    public static class AudienceConstants
     {
+        public static readonly string Students = "";
         
     }
 }

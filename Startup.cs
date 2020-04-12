@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using apc_bot_api.Models.Base;
 using apc_bot_api.Models.Bots;
+using apc_bot_api.Models.TelegramBot;
 using apc_bot_api.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -126,7 +127,7 @@ namespace apc_bot_api
             app.UseAuthorization();
 
             // TelegramBot Client and webHook Initializations
-            TelegramBot.BotInitialization.GetAsync().Wait();    //// Вызов GetAsyns() для инициализации Телеграм бота и Webhook-а
+            TeleBot.GetBotClientAsync().Wait();    //// Вызов GetAsyns() для инициализации Телеграм бота и Webhook-а
 
             app.UseEndpoints(endpoints =>
             {

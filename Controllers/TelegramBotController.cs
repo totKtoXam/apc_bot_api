@@ -5,6 +5,7 @@ using apc_bot_api.Models.Bots;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using System.Threading.Tasks;
+using apc_bot_api.Models.TelegramBot;
 
 namespace apc_bot_api.Controllers
 {
@@ -15,15 +16,15 @@ namespace apc_bot_api.Controllers
         [HttpPost("update")]    //// webhook uri part
         public async Task<IActionResult> Update([FromBody] Update update)   //// Метод выполняется при обновлении данных сообщения в телеграмБоте
         {
-            var commands    = TelegramBot.BotInitialization.commands;           //// команды Телеграм Бота
+            var commands    = TeleBot.Commands;           //// команды Телеграм Бота
             var message     = update.Message;                                   //// сообщения события Update
-            var client      = await TelegramBot.BotInitialization.GetAsync();   //// Инициализация Телеграм Бота
+            var client      = await TeleBot.GetBotClientAsync();   //// Инициализация Телеграм Бота
 
             foreach(var command in commands)        //// Поиск команды
             {
-                if (command.Contains(message.Text)) //// Если команда есть, то...
+                if (command.Contains(message)) //// Если команда есть, то...
                 {
-                    command.Execute(message, client);   //// Выполнить функцию команды
+                    await command.Execute(message, client);   //// Выполнить функцию команды
                     break;
                 }
             }
@@ -34,7 +35,7 @@ namespace apc_bot_api.Controllers
         [HttpGet]
         public IActionResult GetBotName ()
         {
-            return Ok(TelegramBot.BotApiParams.Name);
+            return Ok(TeleBotSettings.Name);
         }
     }
 }
