@@ -7,7 +7,7 @@ namespace apc_bot_api.Models.TelegramBot
     public class TeleBot
     {
         private static TelegramBotClient botClient;
-        private static List<Command> commandsList;
+        private static List<Command> commandsList = new List<Command>();
 
         public static IReadOnlyList<Command> Commands => commandsList.AsReadOnly();
 
@@ -23,7 +23,7 @@ namespace apc_bot_api.Models.TelegramBot
             //TODO: Add more commands
 
             botClient = new TelegramBotClient(TeleBotSettings.AccessToken);
-            string hook = string.Format(TeleBotSettings.Url, "api/message/update");
+            string hook = string.Format(TeleBotSettings.Url, "api/TelegramBot/update");
             await botClient.SetWebhookAsync(hook);
             return botClient;
         }
