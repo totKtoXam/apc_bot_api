@@ -5,8 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using apc_bot_api.Models.Base;
-using apc_bot_api.Models.Bots;
 using apc_bot_api.Models.TelegramBot;
+using apc_bot_api.Models.VkBot;
 using apc_bot_api.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -94,7 +94,7 @@ namespace apc_bot_api
             services.AddSingleton<IVkApi>(sp =>
             {
                 var api = new VkApi();
-                api.Authorize(new ApiAuthParams { AccessToken = VkBot.BotApiParams.AccessToken });
+                api.Authorize(new ApiAuthParams { AccessToken = VkBotApiSettings.AccessToken });
                 return api;
             });
 

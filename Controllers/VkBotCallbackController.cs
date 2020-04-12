@@ -1,6 +1,7 @@
 using System;
 using apc_bot_api.Models.Base;
 using apc_bot_api.Models.Bots;
+using apc_bot_api.Models.VkBot;
 using Microsoft.AspNetCore.Mvc;
 using VkNet.Abstractions;
 using VkNet.Model;
@@ -26,15 +27,15 @@ namespace apc_bot_api.Controllers
         }
 
         [HttpPost]
-        public IActionResult Callback([FromBody] VkBot.EventUpdate eventUpdate)
+        public IActionResult Callback([FromBody] EventUpdate eventUpdate)
         {
-            if (eventUpdate.Secret != VkBot.BotApiParams.SecretKey)
+            if (eventUpdate.Secret != VkBotApiSettings.SecretKey)
                 return BadRequest();
              
             switch (eventUpdate.Type)
             {
                 case "confirmation":
-                    return Ok(VkBot.BotApiParams.ServerConfirmationKey);
+                    return Ok(VkBotApiSettings.ServerConfirmationKey);
                 case "message_new":{
                         // Десериализация
                         var msg = Message.FromJson(new VkResponse(eventUpdate.Object));
