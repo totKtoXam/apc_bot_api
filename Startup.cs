@@ -40,15 +40,15 @@ namespace apc_bot_api
         public void ConfigureServices(IServiceCollection services)
         {
             string connect = Configuration["ConnectionStrings:DefaultConnection"];  // Строка для подключения СУБД PostgreSQL
-            
+
             services
                 .AddDbContext<AppDbContext>(options => options.UseNpgsql(connect)); // Подключение к СУБД PostgreSQL
-            
+
             services
-                .AddIdentity<ApplicationUser, IdentityRole>()
+                .AddIdentity<AppUser, IdentityRole>()
                 .AddEntityFrameworkStores<AppDbContext>()
                 .AddDefaultTokenProviders();
-                // .AddTokenProvider<DataProtectorTokenProvider<ApplicationUser>>("agosproject");
+            // .AddTokenProvider<DataProtectorTokenProvider<AppUser>>("agosproject");
 
             // services.AddTransient<IRepository, Repository>();
             // services.AddScoped<IService, Service>();
@@ -75,7 +75,7 @@ namespace apc_bot_api
                         ValidAudience = Configuration["JwtToken:AUDIENCE"],
                         ValidateIssuerSigningKey = true,
                         // установка ключа безопасности
-                        IssuerSigningKey =  new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration["JwtToken:KEY"])),
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration["JwtToken:KEY"])),
                         ValidateLifetime = true,
                         ClockSkew = TimeSpan.Zero
                     };
@@ -88,17 +88,22 @@ namespace apc_bot_api
 
             IMapper mapper = mappingConfig.CreateMapper();
             services.AddSingleton(mapper);
-            services.AddSingleton<IVkApi>(sp => {
+
+            // VkBotApi Configurations
+            services.AddSingleton<IVkApi>(sp =>
+            {
                 var api = new VkApi();
-                api.Authorize(new ApiAuthParams{ AccessToken = VkBot.BotApiParams.AccessToken });
+                api.Authorize(new ApiAuthParams { AccessToken = VkBot.BotApiParams.AccessToken });
                 return api;
             });
+
             services.AddCors();
             services.AddControllers();
             // services.AddSwaggerGen(c =>
             // {
             //     c.SwaggerDoc("v1.0", new OpenApiInfo { Title = "AGoS restAPI", Version = "v1.0" });
             // });
+            // Swagger
             services.AddSwaggerDocumentation();
         }
 
@@ -111,15 +116,16 @@ namespace apc_bot_api
                 app.UseSwaggerDocumentation();
             }
             app.UseHttpsRedirection();
-            
+
             app.UseCors();
 
             app.UseRouting();
-            
+
             app.UseAuthentication();
-            
+
             app.UseAuthorization();
 
+            // TelegramBot Client and webHook Initializations
             TelegramBot.BotInitialization.GetAsync().Wait();    //// Вызов GetAsyns() для инициализации Телеграм бота и Webhook-а
 
             app.UseEndpoints(endpoints =>

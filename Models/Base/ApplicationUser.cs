@@ -6,8 +6,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace apc_bot_api.Models.Base
 {
-    public class ApplicationUser : IdentityUser
+    public class AppUser : IdentityUser
     {
-        
+
     }
 }

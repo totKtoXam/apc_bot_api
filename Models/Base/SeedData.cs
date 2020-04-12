@@ -13,9 +13,9 @@ namespace apc_bot_api.Models.Base
     {
         public static void Initialize(IServiceProvider serviceProvider)
         {
-            var _dbContext      = serviceProvider.GetRequiredService<AppDbContext>                  ();
-            var _userManager    = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>  ();
-            var _roleManager    = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>     ();
+            var _dbContext = serviceProvider.GetRequiredService<AppDbContext>();
+            var _userManager = serviceProvider.GetRequiredService<UserManager<AppUser>>();
+            var _roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
             // _dbContext.Database.EnsureDeleted();
             // _dbContext.Database.EnsureCreated();

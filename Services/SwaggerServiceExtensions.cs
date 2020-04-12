@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Swagger;
- 
+
 namespace apc_bot_api.Services
 {
     public static class SwaggerServiceExtensions
@@ -76,10 +76,10 @@ namespace apc_bot_api.Services
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
             });
- 
+
             return services;
         }
- 
+
         public static IApplicationBuilder UseSwaggerDocumentation(this IApplicationBuilder app)
         {
             app.UseSwagger();
@@ -89,7 +89,7 @@ namespace apc_bot_api.Services
                 c.RoutePrefix = string.Empty;
                 c.RoutePrefix = "api";
             });
- 
+
             return app;
         }
     }

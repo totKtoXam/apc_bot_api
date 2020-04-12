@@ -21,7 +21,7 @@ namespace apc_bot_api.Controllers
 
             foreach(var command in commands)        //// Поиск команды
             {
-                if (command.Contains(message.Text)) //// Если команд есть, то...
+                if (command.Contains(message.Text)) //// Если команда есть, то...
                 {
                     command.Execute(message, client);   //// Выполнить функцию команды
                     break;
