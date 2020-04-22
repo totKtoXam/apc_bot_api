@@ -10,8 +10,8 @@ using apc_bot_api.Models.Base;
 namespace apc_bot_api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20200411152537_InitMigrate")]
-    partial class InitMigrate
+    [Migration("20200422151230_InitMigration")]
+    partial class InitMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -30,6 +30,10 @@ namespace apc_bot_api.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("text");
 
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Name")
                         .HasColumnType("character varying(256)")
                         .HasMaxLength(256);
@@ -45,6 +49,8 @@ namespace apc_bot_api.Migrations
                         .HasName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles");
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("IdentityRole");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -170,11 +176,20 @@ namespace apc_bot_api.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("FirstName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("text");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean");
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("MiddleName")
+                        .HasColumnType("text");
 
                     b.Property<string>("NormalizedEmail")
                         .HasColumnType("character varying(256)")
@@ -196,12 +211,21 @@ namespace apc_bot_api.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
 
+                    b.Property<string>("TeleChatId")
+                        .HasColumnType("text");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean");
 
                     b.Property<string>("UserName")
                         .HasColumnType("character varying(256)")
                         .HasMaxLength(256);
+
+                    b.Property<string>("VkChatId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("WhatsAppChatId")
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -215,14 +239,11 @@ namespace apc_bot_api.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("apc_bot_api.Models.Bots.BotButton", b =>
+            modelBuilder.Entity("apc_bot_api.Models.Bots.BotAction", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
-
-                    b.Property<string>("BotChannel")
-                        .HasColumnType("text");
 
                     b.Property<string>("Code")
                         .HasColumnType("text");
@@ -233,12 +254,116 @@ namespace apc_bot_api.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
-                    b.Property<string>("PreviousAction")
+                    b.Property<Guid?>("NextStepId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("PrevStepId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NextStepId");
+
+                    b.HasIndex("PrevStepId");
+
+                    b.ToTable("BotActions");
+                });
+
+            modelBuilder.Entity("apc_bot_api.Models.Content.Section", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("text");
+
+                    b.Property<string>("NameTitle")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ParentSection")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.ToTable("BotButtons");
+                    b.ToTable("Sections");
+                });
+
+            modelBuilder.Entity("apc_bot_api.Models.Content.SectionFile", b =>
+                {
+                    b.Property<Guid>("SectionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UploadedFileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("FileId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("SectionId", "UploadedFileId");
+
+                    b.HasIndex("FileId");
+
+                    b.ToTable("SectionFiles");
+                });
+
+            modelBuilder.Entity("apc_bot_api.Models.Content.SectionRole", b =>
+                {
+                    b.Property<Guid>("SectionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("RoleId")
+                        .HasColumnType("text");
+
+                    b.HasKey("SectionId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("SectionRoles");
+                });
+
+            modelBuilder.Entity("apc_bot_api.Models.Content.Step", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Code")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Condition")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Steps");
+                });
+
+            modelBuilder.Entity("apc_bot_api.Models.Content.UploadedFile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<byte[]>("Content")
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("ContentType")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<double>("Size")
+                        .HasColumnType("double precision");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UploadedFiles");
                 });
 
             modelBuilder.Entity("apc_bot_api.Models.Users.Student", b =>
@@ -269,6 +394,13 @@ namespace apc_bot_api.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Students");
+                });
+
+            modelBuilder.Entity("apc_bot_api.Models.Base.AppRole", b =>
+                {
+                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityRole");
+
+                    b.HasDiscriminator().HasValue("AppRole");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -318,6 +450,47 @@ namespace apc_bot_api.Migrations
                     b.HasOne("apc_bot_api.Models.Base.AppUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("apc_bot_api.Models.Bots.BotAction", b =>
+                {
+                    b.HasOne("apc_bot_api.Models.Content.Step", "NextStep")
+                        .WithMany()
+                        .HasForeignKey("NextStepId");
+
+                    b.HasOne("apc_bot_api.Models.Content.Step", "PrevStep")
+                        .WithMany()
+                        .HasForeignKey("PrevStepId");
+                });
+
+            modelBuilder.Entity("apc_bot_api.Models.Content.SectionFile", b =>
+                {
+                    b.HasOne("apc_bot_api.Models.Content.UploadedFile", "File")
+                        .WithMany()
+                        .HasForeignKey("FileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("apc_bot_api.Models.Content.Section", "Section")
+                        .WithMany()
+                        .HasForeignKey("SectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("apc_bot_api.Models.Content.SectionRole", b =>
+                {
+                    b.HasOne("apc_bot_api.Models.Base.AppRole", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("apc_bot_api.Models.Content.Section", "Section")
+                        .WithMany()
+                        .HasForeignKey("SectionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
