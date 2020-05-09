@@ -26,11 +26,25 @@ namespace apc_bot_api.Models.Base
 
             builder.Entity<SectionRole>()
                 .HasKey(t => new { t.SectionId, t.RoleId });
+
+            // builder.Entity<Step>()
+            //         .HasMany(act => act.Actions)
+            //         .WithOne(st => st.NextStep)
+            //         .IsRequired()
+            //         .OnDelete(DeleteBehavior.Cascade);
+
+            // builder.Entity<Step>()
+            //         .HasMany(act => act.Actions)
+            //         .WithOne(st => st.PrevStep)
+            //         .IsRequired()
+            //         .OnDelete(DeleteBehavior.Cascade);
         }
 
         #region Users
         public DbSet<AppUser> AppUsers { get; set; }
+        public DbSet<ClientBot> ClientBots { get; set; }
         public DbSet<Student> Students { get; set; }
+        public DbSet<Teacher> Teachers { get; set; }
         #endregion
 
         public DbSet<BotAction> BotActions { get; set; }

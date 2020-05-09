@@ -10,8 +10,8 @@ using apc_bot_api.Models.Base;
 namespace apc_bot_api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20200422151230_InitMigration")]
-    partial class InitMigration
+    [Migration("20200428140857_InitialMigrate")]
+    partial class InitialMigrate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -30,10 +30,6 @@ namespace apc_bot_api.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("text");
 
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<string>("Name")
                         .HasColumnType("character varying(256)")
                         .HasMaxLength(256);
@@ -49,8 +45,6 @@ namespace apc_bot_api.Migrations
                         .HasName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles");
-
-                    b.HasDiscriminator<string>("Discriminator").HasValue("IdentityRole");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -211,21 +205,12 @@ namespace apc_bot_api.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
 
-                    b.Property<string>("TeleChatId")
-                        .HasColumnType("text");
-
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean");
 
                     b.Property<string>("UserName")
                         .HasColumnType("character varying(256)")
                         .HasMaxLength(256);
-
-                    b.Property<string>("VkChatId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("WhatsAppChatId")
-                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -251,6 +236,9 @@ namespace apc_bot_api.Migrations
                     b.Property<string>("Condition")
                         .HasColumnType("text");
 
+                    b.Property<bool>("IsEdit")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
@@ -267,6 +255,32 @@ namespace apc_bot_api.Migrations
                     b.HasIndex("PrevStepId");
 
                     b.ToTable("BotActions");
+                });
+
+            modelBuilder.Entity("apc_bot_api.Models.Bots.ClientBot", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<string>("TeleChatId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("VkChatId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("WhatsAppChatId")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ClientBots");
                 });
 
             modelBuilder.Entity("apc_bot_api.Models.Content.Section", b =>
@@ -368,39 +382,34 @@ namespace apc_bot_api.Migrations
 
             modelBuilder.Entity("apc_bot_api.Models.Users.Student", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Group")
-                        .HasColumnType("text");
-
-                    b.Property<string>("TelegramChatId")
                         .HasColumnType("text");
 
                     b.Property<string>("TicketNumber")
                         .HasColumnType("text");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("VkChatId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("VkUserId")
-                        .HasColumnType("text");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Students");
                 });
 
-            modelBuilder.Entity("apc_bot_api.Models.Base.AppRole", b =>
+            modelBuilder.Entity("apc_bot_api.Models.Users.Teacher", b =>
                 {
-                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityRole");
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
 
-                    b.HasDiscriminator().HasValue("AppRole");
+                    b.Property<string>("Group")
+                        .HasColumnType("text");
+
+                    b.Property<string>("IIN")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Teachers");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -465,6 +474,13 @@ namespace apc_bot_api.Migrations
                         .HasForeignKey("PrevStepId");
                 });
 
+            modelBuilder.Entity("apc_bot_api.Models.Bots.ClientBot", b =>
+                {
+                    b.HasOne("apc_bot_api.Models.Base.AppUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+                });
+
             modelBuilder.Entity("apc_bot_api.Models.Content.SectionFile", b =>
                 {
                     b.HasOne("apc_bot_api.Models.Content.UploadedFile", "File")
@@ -482,7 +498,7 @@ namespace apc_bot_api.Migrations
 
             modelBuilder.Entity("apc_bot_api.Models.Content.SectionRole", b =>
                 {
-                    b.HasOne("apc_bot_api.Models.Base.AppRole", "Role")
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", "Role")
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -497,9 +513,20 @@ namespace apc_bot_api.Migrations
 
             modelBuilder.Entity("apc_bot_api.Models.Users.Student", b =>
                 {
-                    b.HasOne("apc_bot_api.Models.Base.AppUser", "User")
+                    b.HasOne("apc_bot_api.Models.Bots.ClientBot", "ClientBot")
                         .WithMany()
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("apc_bot_api.Models.Users.Teacher", b =>
+                {
+                    b.HasOne("apc_bot_api.Models.Bots.ClientBot", "ClientBot")
+                        .WithMany()
+                        .HasForeignKey("Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

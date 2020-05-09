@@ -1,5 +1,8 @@
 using System;
 using apc_bot_api.Models.Bots;
+using apc_bot_api.Models.Content;
+using apc_bot_api.Models.Sendler;
+using apc_bot_api.Models.Users;
 using AutoMapper;
 
 namespace apc_bot_api.Models.Base
@@ -24,6 +27,34 @@ namespace apc_bot_api.Models.Base
                 .ForMember(dest => dest.NextStepCode,
                     opt => opt.MapFrom(
                         src => src.NextStep != null ? src.NextStep.Code : ""));
+
+            CreateMap<Step, StepViewModel>()
+                .ForMember(dest => dest.StepId,
+                    opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.StepCode,
+                    opt => opt.MapFrom(src => src.Code))
+                .ForMember(dest => dest.StepName,
+                    opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.StepCondition,
+                    opt => opt.MapFrom(src => src.Condition));
+
+            CreateMap<ClientBot, ClientBotViewModel>();
+
+            CreateMap<Student, StudentReceiverViewModel>()
+                .ForMember(dest => dest.ClientId,
+                    opt => opt.MapFrom(src => src.ClientBot.Id))
+                .ForMember(dest => dest.UserId,
+                    opt => opt.MapFrom(src => src.ClientBot.User.Id))
+                .ForMember(dest => dest.Group,
+                    opt => opt.MapFrom(src => src.Group))
+                .ForMember(dest => dest.Email,
+                    opt => opt.MapFrom(src => src.ClientBot.User.Email))
+                .ForMember(dest => dest.TeleChatId,
+                    opt => opt.MapFrom(src => src.ClientBot.TeleChatId))
+                .ForMember(dest => dest.VkChatId,
+                    opt => opt.MapFrom(src => src.ClientBot.VkChatId))
+                .ForMember(dest => dest.WhatsAppChatId,
+                    opt => opt.MapFrom(src => src.ClientBot.WhatsAppChatId));
         }
     }
 }

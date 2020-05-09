@@ -2,13 +2,14 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using apc_bot_api.Models.Base;
+using Microsoft.AspNetCore.Identity;
 
 namespace apc_bot_api.Models.Content
 {
     public class SectionRole
     {
         [Required]
-        public virtual AppRole Role { get; set; }
+        public virtual IdentityRole Role { get; set; }
         [Required]
         public virtual Section Section { get; set; }
 

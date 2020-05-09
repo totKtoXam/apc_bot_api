@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace apc_bot_api.Migrations
 {
-    public partial class InitMigration : Migration
+    public partial class InitialMigrate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -15,8 +15,7 @@ namespace apc_bot_api.Migrations
                     Id = table.Column<string>(nullable: false),
                     Name = table.Column<string>(maxLength: 256, nullable: true),
                     NormalizedName = table.Column<string>(maxLength: 256, nullable: true),
-                    ConcurrencyStamp = table.Column<string>(nullable: true),
-                    Discriminator = table.Column<string>(nullable: false)
+                    ConcurrencyStamp = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -44,10 +43,7 @@ namespace apc_bot_api.Migrations
                     AccessFailedCount = table.Column<int>(nullable: false),
                     LastName = table.Column<string>(nullable: true),
                     FirstName = table.Column<string>(nullable: true),
-                    MiddleName = table.Column<string>(nullable: true),
-                    TeleChatId = table.Column<string>(nullable: true),
-                    VkChatId = table.Column<string>(nullable: true),
-                    WhatsAppChatId = table.Column<string>(nullable: true)
+                    MiddleName = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -205,22 +201,21 @@ namespace apc_bot_api.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Students",
+                name: "ClientBots",
                 columns: table => new
                 {
-                    Id = table.Column<string>(nullable: false),
-                    TicketNumber = table.Column<string>(nullable: true),
-                    Group = table.Column<string>(nullable: true),
-                    VkUserId = table.Column<string>(nullable: true),
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<string>(nullable: true),
+                    TeleChatId = table.Column<string>(nullable: true),
                     VkChatId = table.Column<string>(nullable: true),
-                    TelegramChatId = table.Column<string>(nullable: true),
-                    UserId = table.Column<string>(nullable: true)
+                    WhatsAppChatId = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Students", x => x.Id);
+                    table.PrimaryKey("PK_ClientBots", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Students_AspNetUsers_UserId",
+                        name: "FK_ClientBots_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
@@ -260,7 +255,8 @@ namespace apc_bot_api.Migrations
                     Code = table.Column<string>(nullable: true),
                     Condition = table.Column<string>(nullable: true),
                     PrevStepId = table.Column<Guid>(nullable: true),
-                    NextStepId = table.Column<Guid>(nullable: true)
+                    NextStepId = table.Column<Guid>(nullable: true),
+                    IsEdit = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -300,6 +296,44 @@ namespace apc_bot_api.Migrations
                         name: "FK_SectionFiles_Sections_SectionId",
                         column: x => x.SectionId,
                         principalTable: "Sections",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Students",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false),
+                    TicketNumber = table.Column<string>(nullable: true),
+                    Group = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Students", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Students_ClientBots_Id",
+                        column: x => x.Id,
+                        principalTable: "ClientBots",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Teachers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false),
+                    Group = table.Column<string>(nullable: true),
+                    IIN = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Teachers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Teachers_ClientBots_Id",
+                        column: x => x.Id,
+                        principalTable: "ClientBots",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -352,6 +386,11 @@ namespace apc_bot_api.Migrations
                 column: "PrevStepId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ClientBots_UserId",
+                table: "ClientBots",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SectionFiles_FileId",
                 table: "SectionFiles",
                 column: "FileId");
@@ -360,11 +399,6 @@ namespace apc_bot_api.Migrations
                 name: "IX_SectionRoles_RoleId",
                 table: "SectionRoles",
                 column: "RoleId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Students_UserId",
-                table: "Students",
-                column: "UserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -397,6 +431,9 @@ namespace apc_bot_api.Migrations
                 name: "Students");
 
             migrationBuilder.DropTable(
+                name: "Teachers");
+
+            migrationBuilder.DropTable(
                 name: "Steps");
 
             migrationBuilder.DropTable(
@@ -407,6 +444,9 @@ namespace apc_bot_api.Migrations
 
             migrationBuilder.DropTable(
                 name: "Sections");
+
+            migrationBuilder.DropTable(
+                name: "ClientBots");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

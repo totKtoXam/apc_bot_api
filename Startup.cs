@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using apc_bot_api.Models.Base;
-using apc_bot_api.Models.VkBot;
 using apc_bot_api.Repositories;
 using apc_bot_api.Services;
 using AutoMapper;
@@ -22,9 +21,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using VkNet;
-using VkNet.Abstractions;
-using VkNet.Model;
 
 namespace apc_bot_api
 {
@@ -53,6 +49,7 @@ namespace apc_bot_api
 
             // services.AddTransient<IRepository, Repository>();
             services.AddTransient<IBotRepository, BotRepository>();
+            services.AddTransient<ISendlerRepository, SendlerRepository>();
             // services.AddScoped<IService, Service>();
 
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
@@ -91,14 +88,6 @@ namespace apc_bot_api
             IMapper mapper = mappingConfig.CreateMapper();
             services.AddSingleton(mapper);
 
-            // VkBotApi Configurations
-            services.AddSingleton<IVkApi>(sp =>
-            {
-                var api = new VkApi();
-                api.Authorize(new ApiAuthParams { AccessToken = VkBotApiSettings.AccessToken });
-                return api;
-            });
-
             services.AddCors();
             services.AddControllers();
             // services.AddControllersWithViews().AddNewtonsoftJson();
@@ -122,7 +111,9 @@ namespace apc_bot_api
 
             app.UseCors(builder => 
                 builder
-                    .WithOrigins()
+                    .WithOrigins(
+                        "http://localhost:5000"     //// apc_bot_py_api
+                        )
                     .AllowCredentials()
                     .AllowAnyHeader()
                     .AllowAnyMethod()

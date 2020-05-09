@@ -9,29 +9,19 @@ namespace apc_bot_api.Constants
         // public static readonly string 
         public static readonly string regTitle = "Регистрация";
     }
-    public static class BotButtonsConstants
+
+    public static class StepConstants
     {
-        public static class GeneralCommands
-        {
-            public static readonly string StartBtn = "/start";
-            // public static readonly string BindNumber = "BIND_NUMBER";
-            // public static readonly string BindEmail = "BIND_EMAIL";
-            // public static readonly string 
-        }
+        public static readonly string _START_ = "start";
+        public static readonly string _EMAIL_ENTER_ = "EMAIL_ENTER"; 
+    }
 
-        public static class VkBot
-        {
-
-        }
-
-        public static class TelegramBot
-        {
-
-        }
-
-        public static class WhatsAppBot
-        {
-
-        }
+    public class ActionConstants
+    {
+        public const string ROLE_IS_STUDENT = "ROLE_IS_STUDENT";
+        public const string ROLE_IS_TEACHER = "ROLE_IS_TEACHER";
+        public const string ROLE_IS_ENROLLEE = "ROLE_IS_ENROLLEE";
+        // public static readonly string ROLE_IS_STUDENT = "ROLE_IS_STUDENT";
+        // public static readonly string ROLE_IS_STUDENT = "ROLE_IS_STUDENT";
     }
 }
