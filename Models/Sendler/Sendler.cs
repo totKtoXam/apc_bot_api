@@ -21,6 +21,7 @@ namespace apc_bot_api.Models.Sendler
     public class SendlerResponse
     {
         // public string ReceiverUsersRole { get; set; } //// teacher, enrollee, student
+        public string Text { get; set; }
         public List<StudentReceiverViewModel> StudentList { get; set; } //// Список студентов, которые получат рассылку
         public List<PostAttachment> SendingFileList { get; set; } //// Список отправляемых файлов
     }

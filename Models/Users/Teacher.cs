@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using apc_bot_api.Models.Base;
 using apc_bot_api.Models.Bots;
 
 namespace apc_bot_api.Models.Users
@@ -18,6 +19,13 @@ namespace apc_bot_api.Models.Users
         [ForeignKey("ClientBot")]
         public int Id { get; set; }
         public ClientBot ClientBot { get; set; }
+        public string Group { get; set; }
+        public string IIN { get; set; }
+    }
+
+    public class TeacherViewModel : UserViewModel
+    {
+        public int TeacherId { get; set; }
         public string Group { get; set; }
         public string IIN { get; set; }
     }

@@ -9,4 +9,10 @@ namespace apc_bot_api.Models.Base
         public string Code { get; set; }
         public string Condition { get; set; }
     }
+
+    public class ErrorViewModel
+    {
+        public string Name { get; set; }
+        public string Code { get; set; }
+    }
 }

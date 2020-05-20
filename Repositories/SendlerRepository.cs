@@ -54,6 +54,7 @@ namespace apc_bot_api.Repositories
                 SendlerResponse response = new SendlerResponse()
                 {
                     StudentList = receivers,
+                    Text = sendlerForm.Text,
                     SendingFileList = sendlerForm.Attachments
                 };
 

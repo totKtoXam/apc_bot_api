@@ -35,4 +35,11 @@ namespace apc_bot_api.Models.Users
         public int Id { get; set; }
         public ClientBot ClientBot { get; set; }
     }
+
+    public class StudentViewModel : UserViewModel
+    {
+        public string StudentId { get; set; }
+        public string TicketNumber { get; set; }
+        public string Group { get; set; }
+    }
 }
