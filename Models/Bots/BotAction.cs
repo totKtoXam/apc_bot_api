@@ -7,6 +7,7 @@ namespace apc_bot_api.Models.Bots
     public class BotAction : BaseProperties
     {
         public Step PrevStep { get; set; }
+        public Step CurrnetStep { get; set; }
         public Step NextStep { get; set; }
         public bool IsEdit { get; set; }
     }

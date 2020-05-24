@@ -1,5 +1,7 @@
+using apc_bot_api.Models.Appeals;
 using apc_bot_api.Models.Bots;
 using apc_bot_api.Models.Content;
+using apc_bot_api.Models.Types;
 using apc_bot_api.Models.Users;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -21,18 +23,39 @@ namespace apc_bot_api.Models.Base
         {
             base.OnModelCreating(builder);
 
-            builder.Entity<SectionFile>()
-                .HasKey(t => new { t.SectionId, t.UploadedFileId });
+            builder.Entity<Step>()
+                    .HasMany(st => st.StepFiles)
+                    .WithOne(sf => sf.Step)
+                    .OnDelete(DeleteBehavior.Cascade);
 
-            builder.Entity<SectionRole>()
-                .HasKey(t => new { t.SectionId, t.RoleId });
+            builder.Entity<Step>()
+                    .HasMany(st => st.StepRoles)
+                    .WithOne(sr => sr.Step)
+                    .OnDelete(DeleteBehavior.Cascade);
 
-            // builder.Entity<Step>()
-            //         .HasMany(act => act.Actions)
-            //         .WithOne(st => st.NextStep)
-            //         .IsRequired()
-            //         .OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<StepFile>()
+                    .HasKey(t => new { t.StepId, t.UploadedFileId });
 
+            builder.Entity<StepRole>()
+                    .HasKey(t => new { t.StepId, t.RoleId });
+
+
+            builder.Entity<Information>()
+                    .HasMany(info => info.InfoFiles)
+                    .WithOne(infFl => infFl.Info)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<InfoFile>()
+                    .HasKey(t => new { t.InfoId, t.FileId });
+
+
+            builder.Entity<EnrolleeAppeal>()
+                    .HasMany(ea => ea.EnrolleeAppealFiles)
+                    .WithOne(eaf => eaf.Appeal)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<EnrolleeAppealFile>()
+                    .HasKey(t => new { t.AppealId, t.FileId });
             // builder.Entity<Step>()
             //         .HasMany(act => act.Actions)
             //         .WithOne(st => st.PrevStep)
@@ -47,11 +70,30 @@ namespace apc_bot_api.Models.Base
         public DbSet<Teacher> Teachers { get; set; }
         #endregion
 
-        public DbSet<BotAction> BotActions { get; set; }
+        #region Content
+        public DbSet<InfoFile> InfoFiles { get; set; }
+        public DbSet<Information> Informations { get; set; }
+
         public DbSet<Step> Steps { get; set; }
-        public DbSet<Section> Sections { get; set; }
-        public DbSet<SectionRole> SectionRoles { get; set; }
+        public DbSet<StepRole> StepRoles { get; set; }
+        public DbSet<StepFile> StepFiles { get; set; }
+
         public DbSet<UploadedFile> UploadedFiles { get; set; }
-        public DbSet<SectionFile> SectionFiles { get; set; }
+        #endregion
+
+        #region Types
+        public DbSet<StepType> StepTypes { get; set; }
+        public DbSet<InfoType> InfoTypes { get; set; }
+        public DbSet<FileType> FileTypes { get; set; }
+        #endregion
+
+        #region Bots
+        public DbSet<BotAction> BotActions { get; set; }
+        #endregion
+
+        #region Appeals
+        public DbSet<EnrolleeAppeal> EnrolleeAppeals { get; set; }
+        public DbSet<EnrolleeAppealFile> EnrolleeAppealFiles { get; set; }
+        #endregion
     }
 }

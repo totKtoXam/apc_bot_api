@@ -4,25 +4,26 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace apc_bot_api.Models.Content
 {
-    public class SectionFile
+    public class InfoFile
     {
-        public SectionFile() { }
-        public SectionFile(Section section, UploadedFile file)
+        public InfoFile() { }
+        public InfoFile(Information _info, UploadedFile _file)
         {
-            Section = section;
-            File = file;
+            this.Info = _info;
+            this.File = _file;
         }
+
         [Required]
-        public virtual Section Section { get; set; }
+        public virtual Information Info { get; set; }
         [Required]
         public virtual UploadedFile File { get; set; }
 
         // [Required]
         [Key]
-        [ForeignKey("Section")]
-        public Guid SectionId { get; set; }
+        [ForeignKey("Information")]
+        public Guid InfoId { get; set; }
         [Key]
         [ForeignKey("UploadedFile")]
-        public Guid UploadedFileId { get; set; }
+        public int FileId { get; set; }
     }
 }

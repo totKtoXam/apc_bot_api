@@ -88,7 +88,7 @@ namespace apc_bot_api.Repositories
                 var randomNewPass = RandomPasswordGenerate();
                 result = await _userManager.CreateAsync(newUser, randomNewPass);
             }
-            
+
             if (await AddRoleByActionCodeAsync(newUser, clientBotForm.RoleCode))
             {
 
@@ -99,13 +99,13 @@ namespace apc_bot_api.Repositories
 
                 switch (clientBotForm.RoleCode)
                 {
-                    case ActionConstants.ROLE_IS_STUDENT:
+                    case BotConstants.Actions.ROLE_IS_STUDENT:
                         Student newStudent = new Student(newClient);
                         newStudent.TicketNumber = clientBotForm.TicketNumber;
                         newStudent.Group = clientBotForm.Group;
                         await _dbContext.Students.AddAsync(newStudent);
                         break;
-                    case ActionConstants.ROLE_IS_TEACHER:
+                    case BotConstants.Actions.ROLE_IS_TEACHER:
                         Teacher newTeacher = new Teacher(newClient);
                         newTeacher.Group = clientBotForm.Group;
                         newTeacher.IIN = clientBotForm.IIN;
@@ -126,11 +126,11 @@ namespace apc_bot_api.Repositories
 
         private ClientBot SetChatIdByChannel(ClientBot clientBot, ClientBotForm clientBotForm)
         {
-            if (clientBotForm.BotChannel == BotChannelConstants.Telegram)
+            if (clientBotForm.BotChannel == BotConstants.Channels.Telegram)
                 clientBot.TeleChatId = clientBotForm.ChatId;
-            if (clientBotForm.BotChannel == BotChannelConstants.VKontakte)
+            if (clientBotForm.BotChannel == BotConstants.Channels.VKontakte)
                 clientBot.VkChatId = clientBotForm.ChatId;
-            if (clientBotForm.BotChannel == BotChannelConstants.WhatsApp)
+            if (clientBotForm.BotChannel == BotConstants.Channels.WhatsApp)
                 clientBot.WhatsAppChatId = clientBotForm.ChatId;
 
             return clientBot;
@@ -154,27 +154,27 @@ namespace apc_bot_api.Repositories
         {
             switch (clientBotForm.RoleCode)
             {
-                case ActionConstants.ROLE_IS_STUDENT:
+                case BotConstants.Actions.ROLE_IS_STUDENT:
                     if (await _dbContext.Students.AnyAsync(x => x.TicketNumber == clientBotForm.TicketNumber))
                         return true;
                     break;
-                case ActionConstants.ROLE_IS_ENROLLEE:
+                case BotConstants.Actions.ROLE_IS_ENROLLEE:
                     if (await _userManager.FindByEmailAsync(clientBotForm.Email) == null)
                     {
-                        if (clientBotForm.BotChannel == BotChannelConstants.Telegram)
+                        if (clientBotForm.BotChannel == BotConstants.Channels.Telegram)
                             if (await _dbContext.ClientBots.AnyAsync(x => x.TeleChatId == clientBotForm.ChatId))
                                 return true;
-                        if (clientBotForm.BotChannel == BotChannelConstants.VKontakte)
+                        if (clientBotForm.BotChannel == BotConstants.Channels.VKontakte)
                             if (await _dbContext.ClientBots.AnyAsync(x => x.VkChatId == clientBotForm.ChatId))
                                 return true;
-                        if (clientBotForm.BotChannel == BotChannelConstants.WhatsApp)
+                        if (clientBotForm.BotChannel == BotConstants.Channels.WhatsApp)
                             if (await _dbContext.ClientBots.AnyAsync(x => x.WhatsAppChatId == clientBotForm.ChatId))
                                 return true;
                     }
                     else
                         return true;
                     break;
-                case ActionConstants.ROLE_IS_TEACHER:
+                case BotConstants.Actions.ROLE_IS_TEACHER:
                     if (await _dbContext.Teachers.AnyAsync(x => x.IIN == clientBotForm.IIN))
                         return true;
                     break;
@@ -190,13 +190,13 @@ namespace apc_bot_api.Repositories
             IdentityResult result = new IdentityResult();
             switch (actCode)
             {
-                case ActionConstants.ROLE_IS_STUDENT:
+                case BotConstants.Actions.ROLE_IS_STUDENT:
                     result = await _userManager.AddToRoleAsync(user, "student");
                     break;
-                case ActionConstants.ROLE_IS_ENROLLEE:
+                case BotConstants.Actions.ROLE_IS_ENROLLEE:
                     result = await _userManager.AddToRoleAsync(user, "enrollee");
                     break;
-                case ActionConstants.ROLE_IS_TEACHER:
+                case BotConstants.Actions.ROLE_IS_TEACHER:
                     result = await _userManager.AddToRoleAsync(user, "teacher");
                     break;
                 default:

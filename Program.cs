@@ -23,7 +23,7 @@ namespace apc_bot_api
 
                 try
                 {
-                    SeedData.Initialize(_services);
+                    InitSeedData.Initialize(_services);
                 }
                 catch (Exception ex)
                 {
