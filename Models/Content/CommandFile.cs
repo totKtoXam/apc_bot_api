@@ -4,23 +4,23 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace apc_bot_api.Models.Content
 {
-    public class StepFile
+    public class CommandFile
     {
-        public StepFile() { }
-        public StepFile(Step _step, UploadedFile _file)
+        public CommandFile() { }
+        public CommandFile(Command _command, UploadedFile _file)
         {
-            Step = _step;
+            Command = _command;
             File = _file;
         }
         [Required]
-        public virtual Step Step { get; set; }
+        public virtual Command Command { get; set; }
         [Required]
         public virtual UploadedFile File { get; set; }
 
         // [Required]
         [Key]
-        [ForeignKey("Step")]
-        public Guid StepId { get; set; }
+        [ForeignKey("Command")]
+        public Guid CommandId { get; set; }
         [Key]
         [ForeignKey("UploadedFile")]
         public Guid UploadedFileId { get; set; }

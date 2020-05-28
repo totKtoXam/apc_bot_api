@@ -21,6 +21,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 
 namespace apc_bot_api
 {
@@ -51,6 +52,7 @@ namespace apc_bot_api
             services.AddTransient<IBotRepository, BotRepository>();
             services.AddTransient<ISendlerRepository, SendlerRepository>();
             services.AddTransient<IClientRepository, ClientRepository>();
+            services.AddTransient<ICommandRepository, CommandRepository>();
             // services.AddScoped<IService, Service>();
 
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
@@ -90,7 +92,10 @@ namespace apc_bot_api
             services.AddSingleton(mapper);
 
             services.AddCors();
-            services.AddControllers();
+            // services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson(options =>
+            options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+            );
             // services.AddControllersWithViews().AddNewtonsoftJson();
             // services.AddSwaggerGen(c =>
             // {
@@ -110,7 +115,7 @@ namespace apc_bot_api
             }
             app.UseHttpsRedirection();
 
-            app.UseCors(builder => 
+            app.UseCors(builder =>
                 builder
                     .WithOrigins(
                         "http://localhost:5000"     //// apc_bot_py_api

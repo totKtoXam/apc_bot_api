@@ -15,7 +15,7 @@ namespace apc_bot_api.Repositories
 {
     public interface IBotRepository
     {
-        Task<List<BotActionViewModel>> GetBotActionsByPrevStepCodeAsync(string stepCode);
+        Task<List<BotActionViewModel>> GetBotActionsByPrevCommandCodeAsync(string commandCode);
         // Task<ClientBotViewModel> PostClientAsync(ClientBotForm clientForm, string actCode = null);
         Task<ClientBotViewModel> CreateBotClientAsync(ClientBotForm clientBotForm);
     }
@@ -37,19 +37,19 @@ namespace apc_bot_api.Repositories
         }
 
         private IQueryable<BotAction> BotActions => _dbContext.BotActions
-                                                            .Include(x => x.PrevStep)
-                                                            .Include(x => x.NextStep);
+                                                            .Include(x => x.PrevCommand)
+                                                            .Include(x => x.NextCommand);
 
         private async Task<BotActionViewModel> BotActionModelByCode(string actCode) =>
                         await this.BotActions
                                     .Select(x => _mapper.Map<BotActionViewModel>(x))
                                     .FirstOrDefaultAsync(x => x.Code == actCode);
 
-        public async Task<List<BotActionViewModel>> GetBotActionsByPrevStepCodeAsync(string stepCode)
+        public async Task<List<BotActionViewModel>> GetBotActionsByPrevCommandCodeAsync(string commandCode)
         {
             var botActionModelList = await this.BotActions
                                         // .Include(x => x)
-                                        .Where(x => x.PrevStep != null && x.PrevStep.Code == stepCode)
+                                        .Where(x => x.PrevCommand != null && x.PrevCommand.Code == commandCode)
                                         .Select(x => _mapper.Map<BotActionViewModel>(x))
                                         .ToListAsync();
 
@@ -211,10 +211,10 @@ namespace apc_bot_api.Repositories
 
         // public async Task<ClientBotViewModel> PostClientAsync(ClientBotForm clientForm, string actCode = null)
         // {
-        //     var action = await _dbContext.BotActions.Include(x => x.PrevStep).FirstOrDefaultAsync(x => x.Code == actCode);
+        //     var action = await _dbContext.BotActions.Include(x => x.PrevCommand).FirstOrDefaultAsync(x => x.Code == actCode);
         //     ClientBot foundClient = new ClientBot();
 
-        //     if (action.PrevStep.Code == StepConstants._START_)
+        //     if (action.PrevCommand.Code == CommandConstants._START_)
         //     {
 
         //     }

@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace apc_bot_api.Migrations
 {
-    public partial class InitialMigrate : Migration
+    public partial class InitMigr : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -43,7 +43,9 @@ namespace apc_bot_api.Migrations
                     AccessFailedCount = table.Column<int>(nullable: false),
                     LastName = table.Column<string>(nullable: true),
                     FirstName = table.Column<string>(nullable: true),
-                    MiddleName = table.Column<string>(nullable: true)
+                    MiddleName = table.Column<string>(nullable: true),
+                    CreatedDate = table.Column<DateTime>(nullable: false),
+                    IsActive = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -51,47 +53,48 @@ namespace apc_bot_api.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Sections",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(nullable: false),
-                    NameTitle = table.Column<string>(nullable: true),
-                    Content = table.Column<string>(nullable: true),
-                    ParentSection = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Sections", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Steps",
+                name: "CommandTypes",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
                     Name = table.Column<string>(nullable: true),
                     Code = table.Column<string>(nullable: true),
-                    Condition = table.Column<string>(nullable: true)
+                    Condition = table.Column<string>(nullable: true),
+                    Description = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Steps", x => x.Id);
+                    table.PrimaryKey("PK_CommandTypes", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "UploadedFiles",
+                name: "FileTypes",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(nullable: false),
                     Name = table.Column<string>(nullable: true),
-                    Size = table.Column<double>(nullable: false),
-                    ContentType = table.Column<string>(nullable: true),
-                    Content = table.Column<byte[]>(nullable: true)
+                    Code = table.Column<string>(nullable: true),
+                    Condition = table.Column<string>(nullable: true),
+                    Description = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UploadedFiles", x => x.Id);
+                    table.PrimaryKey("PK_FileTypes", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "InfoTypes",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    Name = table.Column<string>(nullable: true),
+                    Code = table.Column<string>(nullable: true),
+                    Condition = table.Column<string>(nullable: true),
+                    Description = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_InfoTypes", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -223,81 +226,80 @@ namespace apc_bot_api.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "SectionRoles",
+                name: "EnrolleeAppeals",
                 columns: table => new
                 {
-                    RoleId = table.Column<string>(nullable: false),
-                    SectionId = table.Column<Guid>(nullable: false)
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Message = table.Column<string>(nullable: true),
+                    CreatedDate = table.Column<DateTime>(nullable: false),
+                    SentById = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SectionRoles", x => new { x.SectionId, x.RoleId });
+                    table.PrimaryKey("PK_EnrolleeAppeals", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SectionRoles_AspNetRoles_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "AspNetRoles",
+                        name: "FK_EnrolleeAppeals_AspNetUsers_SentById",
+                        column: x => x.SentById,
+                        principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_SectionRoles_Sections_SectionId",
-                        column: x => x.SectionId,
-                        principalTable: "Sections",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "BotActions",
+                name: "Commands",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
                     Name = table.Column<string>(nullable: true),
                     Code = table.Column<string>(nullable: true),
                     Condition = table.Column<string>(nullable: true),
-                    PrevStepId = table.Column<Guid>(nullable: true),
-                    NextStepId = table.Column<Guid>(nullable: true),
-                    IsEdit = table.Column<bool>(nullable: false)
+                    PrevCommandCode = table.Column<string>(nullable: true),
+                    NextCommandCode = table.Column<string>(nullable: true),
+                    TypeId = table.Column<Guid>(nullable: true),
+                    Description = table.Column<string>(nullable: true),
+                    Message = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_BotActions", x => x.Id);
+                    table.PrimaryKey("PK_Commands", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_BotActions_Steps_NextStepId",
-                        column: x => x.NextStepId,
-                        principalTable: "Steps",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_BotActions_Steps_PrevStepId",
-                        column: x => x.PrevStepId,
-                        principalTable: "Steps",
+                        name: "FK_Commands_CommandTypes_TypeId",
+                        column: x => x.TypeId,
+                        principalTable: "CommandTypes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "SectionFiles",
+                name: "UploadedFiles",
                 columns: table => new
                 {
-                    SectionId = table.Column<Guid>(nullable: false),
-                    UploadedFileId = table.Column<Guid>(nullable: false),
-                    FileId = table.Column<int>(nullable: false)
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(nullable: true),
+                    Size = table.Column<double>(nullable: false),
+                    ContentType = table.Column<string>(nullable: true),
+                    Content = table.Column<byte[]>(nullable: true),
+                    UploadedById = table.Column<string>(nullable: true),
+                    UploadedDate = table.Column<DateTime>(nullable: false),
+                    FileId = table.Column<Guid>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SectionFiles", x => new { x.SectionId, x.UploadedFileId });
+                    table.PrimaryKey("PK_UploadedFiles", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SectionFiles_UploadedFiles_FileId",
+                        name: "FK_UploadedFiles_FileTypes_FileId",
                         column: x => x.FileId,
-                        principalTable: "UploadedFiles",
+                        principalTable: "FileTypes",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_SectionFiles_Sections_SectionId",
-                        column: x => x.SectionId,
-                        principalTable: "Sections",
+                        name: "FK_UploadedFiles_AspNetUsers_UploadedById",
+                        column: x => x.UploadedById,
+                        principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -334,6 +336,170 @@ namespace apc_bot_api.Migrations
                         name: "FK_Teachers_ClientBots_Id",
                         column: x => x.Id,
                         principalTable: "ClientBots",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "BotActions",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    Name = table.Column<string>(nullable: true),
+                    Code = table.Column<string>(nullable: true),
+                    Condition = table.Column<string>(nullable: true),
+                    PrevCommandId = table.Column<Guid>(nullable: true),
+                    CurrentCommandId = table.Column<Guid>(nullable: true),
+                    NextCommandId = table.Column<Guid>(nullable: true),
+                    IsEdit = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BotActions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_BotActions_Commands_CurrentCommandId",
+                        column: x => x.CurrentCommandId,
+                        principalTable: "Commands",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_BotActions_Commands_NextCommandId",
+                        column: x => x.NextCommandId,
+                        principalTable: "Commands",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_BotActions_Commands_PrevCommandId",
+                        column: x => x.PrevCommandId,
+                        principalTable: "Commands",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CommandRoles",
+                columns: table => new
+                {
+                    CommandId = table.Column<Guid>(nullable: false),
+                    RoleId = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CommandRoles", x => new { x.CommandId, x.RoleId });
+                    table.ForeignKey(
+                        name: "FK_CommandRoles_Commands_CommandId",
+                        column: x => x.CommandId,
+                        principalTable: "Commands",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CommandRoles_AspNetRoles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "AspNetRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Informations",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    Name = table.Column<string>(nullable: true),
+                    Code = table.Column<string>(nullable: true),
+                    Condition = table.Column<string>(nullable: true),
+                    ShortDescription = table.Column<string>(nullable: true),
+                    Description = table.Column<string>(nullable: true),
+                    TypeId = table.Column<Guid>(nullable: true),
+                    CommandId = table.Column<Guid>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Informations", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Informations_Commands_CommandId",
+                        column: x => x.CommandId,
+                        principalTable: "Commands",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Informations_InfoTypes_TypeId",
+                        column: x => x.TypeId,
+                        principalTable: "InfoTypes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CommandFiles",
+                columns: table => new
+                {
+                    CommandId = table.Column<Guid>(nullable: false),
+                    UploadedFileId = table.Column<Guid>(nullable: false),
+                    FileId = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CommandFiles", x => new { x.CommandId, x.UploadedFileId });
+                    table.ForeignKey(
+                        name: "FK_CommandFiles_Commands_CommandId",
+                        column: x => x.CommandId,
+                        principalTable: "Commands",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CommandFiles_UploadedFiles_FileId",
+                        column: x => x.FileId,
+                        principalTable: "UploadedFiles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "EnrolleeAppealFiles",
+                columns: table => new
+                {
+                    AppealId = table.Column<Guid>(nullable: false),
+                    FileId = table.Column<int>(nullable: false),
+                    AppealId1 = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EnrolleeAppealFiles", x => new { x.AppealId, x.FileId });
+                    table.ForeignKey(
+                        name: "FK_EnrolleeAppealFiles_EnrolleeAppeals_AppealId1",
+                        column: x => x.AppealId1,
+                        principalTable: "EnrolleeAppeals",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_EnrolleeAppealFiles_UploadedFiles_FileId",
+                        column: x => x.FileId,
+                        principalTable: "UploadedFiles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "InfoFiles",
+                columns: table => new
+                {
+                    InfoId = table.Column<Guid>(nullable: false),
+                    FileId = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_InfoFiles", x => new { x.InfoId, x.FileId });
+                    table.ForeignKey(
+                        name: "FK_InfoFiles_UploadedFiles_FileId",
+                        column: x => x.FileId,
+                        principalTable: "UploadedFiles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_InfoFiles_Informations_InfoId",
+                        column: x => x.InfoId,
+                        principalTable: "Informations",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -376,14 +542,19 @@ namespace apc_bot_api.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_BotActions_NextStepId",
+                name: "IX_BotActions_CurrentCommandId",
                 table: "BotActions",
-                column: "NextStepId");
+                column: "CurrentCommandId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_BotActions_PrevStepId",
+                name: "IX_BotActions_NextCommandId",
                 table: "BotActions",
-                column: "PrevStepId");
+                column: "NextCommandId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BotActions_PrevCommandId",
+                table: "BotActions",
+                column: "PrevCommandId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ClientBots_UserId",
@@ -391,14 +562,59 @@ namespace apc_bot_api.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SectionFiles_FileId",
-                table: "SectionFiles",
+                name: "IX_CommandFiles_FileId",
+                table: "CommandFiles",
                 column: "FileId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SectionRoles_RoleId",
-                table: "SectionRoles",
+                name: "IX_CommandRoles_RoleId",
+                table: "CommandRoles",
                 column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Commands_TypeId",
+                table: "Commands",
+                column: "TypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EnrolleeAppealFiles_AppealId1",
+                table: "EnrolleeAppealFiles",
+                column: "AppealId1");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EnrolleeAppealFiles_FileId",
+                table: "EnrolleeAppealFiles",
+                column: "FileId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EnrolleeAppeals_SentById",
+                table: "EnrolleeAppeals",
+                column: "SentById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_InfoFiles_FileId",
+                table: "InfoFiles",
+                column: "FileId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Informations_CommandId",
+                table: "Informations",
+                column: "CommandId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Informations_TypeId",
+                table: "Informations",
+                column: "TypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UploadedFiles_FileId",
+                table: "UploadedFiles",
+                column: "FileId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UploadedFiles_UploadedById",
+                table: "UploadedFiles",
+                column: "UploadedById");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -422,10 +638,16 @@ namespace apc_bot_api.Migrations
                 name: "BotActions");
 
             migrationBuilder.DropTable(
-                name: "SectionFiles");
+                name: "CommandFiles");
 
             migrationBuilder.DropTable(
-                name: "SectionRoles");
+                name: "CommandRoles");
+
+            migrationBuilder.DropTable(
+                name: "EnrolleeAppealFiles");
+
+            migrationBuilder.DropTable(
+                name: "InfoFiles");
 
             migrationBuilder.DropTable(
                 name: "Students");
@@ -434,22 +656,34 @@ namespace apc_bot_api.Migrations
                 name: "Teachers");
 
             migrationBuilder.DropTable(
-                name: "Steps");
+                name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "EnrolleeAppeals");
 
             migrationBuilder.DropTable(
                 name: "UploadedFiles");
 
             migrationBuilder.DropTable(
-                name: "AspNetRoles");
-
-            migrationBuilder.DropTable(
-                name: "Sections");
+                name: "Informations");
 
             migrationBuilder.DropTable(
                 name: "ClientBots");
 
             migrationBuilder.DropTable(
+                name: "FileTypes");
+
+            migrationBuilder.DropTable(
+                name: "Commands");
+
+            migrationBuilder.DropTable(
+                name: "InfoTypes");
+
+            migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "CommandTypes");
         }
     }
 }

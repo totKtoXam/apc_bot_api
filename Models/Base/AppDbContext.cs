@@ -23,42 +23,47 @@ namespace apc_bot_api.Models.Base
         {
             base.OnModelCreating(builder);
 
-            builder.Entity<Step>()
-                    .HasMany(st => st.StepFiles)
-                    .WithOne(sf => sf.Step)
+        //     builder.Entity<Command>()
+        //             .HasMany(st => st.CommandFiles)
+        //             .WithOne(sf => sf.Command)
+        //             .OnDelete(DeleteBehavior.Cascade);
+
+        //     builder.Entity<Command>()
+        //             .HasMany(st => st.CommandRoles)
+        //             .WithOne(sr => sr.Command)
+        //             .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<CommandFile>()
+                    .HasKey(t => new { t.CommandId, t.UploadedFileId });
+
+            builder.Entity<CommandRole>()
+                    .HasKey(t => new { t.CommandId, t.RoleId });
+
+            builder.Entity<Command>()
+                    .HasMany(cmd => cmd.BotActions)
+                    .WithOne(cmd => cmd.CurrentCommand)
                     .OnDelete(DeleteBehavior.Cascade);
 
-            builder.Entity<Step>()
-                    .HasMany(st => st.StepRoles)
-                    .WithOne(sr => sr.Step)
-                    .OnDelete(DeleteBehavior.Cascade);
 
-            builder.Entity<StepFile>()
-                    .HasKey(t => new { t.StepId, t.UploadedFileId });
-
-            builder.Entity<StepRole>()
-                    .HasKey(t => new { t.StepId, t.RoleId });
-
-
-            builder.Entity<Information>()
-                    .HasMany(info => info.InfoFiles)
-                    .WithOne(infFl => infFl.Info)
-                    .OnDelete(DeleteBehavior.Cascade);
+        //     builder.Entity<Information>()
+        //             .HasMany(info => info.InfoFiles)
+        //             .WithOne(infFl => infFl.Info)
+        //             .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<InfoFile>()
                     .HasKey(t => new { t.InfoId, t.FileId });
 
 
-            builder.Entity<EnrolleeAppeal>()
-                    .HasMany(ea => ea.EnrolleeAppealFiles)
-                    .WithOne(eaf => eaf.Appeal)
-                    .OnDelete(DeleteBehavior.Cascade);
+        //     builder.Entity<EnrolleeAppeal>()
+        //             .HasMany(ea => ea.EnrolleeAppealFiles)
+        //             .WithOne(eaf => eaf.Appeal)
+        //             .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<EnrolleeAppealFile>()
                     .HasKey(t => new { t.AppealId, t.FileId });
-            // builder.Entity<Step>()
+            // builder.Entity<Command>()
             //         .HasMany(act => act.Actions)
-            //         .WithOne(st => st.PrevStep)
+            //         .WithOne(st => st.PrevCommand)
             //         .IsRequired()
             //         .OnDelete(DeleteBehavior.Cascade);
         }
@@ -74,15 +79,15 @@ namespace apc_bot_api.Models.Base
         public DbSet<InfoFile> InfoFiles { get; set; }
         public DbSet<Information> Informations { get; set; }
 
-        public DbSet<Step> Steps { get; set; }
-        public DbSet<StepRole> StepRoles { get; set; }
-        public DbSet<StepFile> StepFiles { get; set; }
+        public DbSet<Command> Commands { get; set; }
+        public DbSet<CommandRole> CommandRoles { get; set; }
+        public DbSet<CommandFile> CommandFiles { get; set; }
 
         public DbSet<UploadedFile> UploadedFiles { get; set; }
         #endregion
 
         #region Types
-        public DbSet<StepType> StepTypes { get; set; }
+        public DbSet<CommandType> CommandTypes { get; set; }
         public DbSet<InfoType> InfoTypes { get; set; }
         public DbSet<FileType> FileTypes { get; set; }
         #endregion

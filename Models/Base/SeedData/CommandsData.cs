@@ -6,13 +6,13 @@ using Microsoft.AspNetCore.Identity;
 
 namespace apc_bot_api.Models.Base.SeedData
 {
-    public static class StepsData
+    public static class CommandsData
     {
         public static void AddSeedData(AppDbContext _dbContext, RoleManager<IdentityRole> _roleManager)
         {
-            var actionType = _dbContext.StepTypes.FirstOrDefault(x => x.Code == StepConstants.Types.Action);
-            var infoType = _dbContext.StepTypes.FirstOrDefault(x => x.Code == StepConstants.Types.Information);
-            var actionSelectorType = _dbContext.StepTypes.FirstOrDefault(x => x.Code == StepConstants.Types.ActionSelector);
+            var actionType = _dbContext.CommandTypes.FirstOrDefault(x => x.Code == CommandConstants.Types.Action);
+            var infoType = _dbContext.CommandTypes.FirstOrDefault(x => x.Code == CommandConstants.Types.Information);
+            var actionSelectorType = _dbContext.CommandTypes.FirstOrDefault(x => x.Code == CommandConstants.Types.ActionSelector);
 
 
             var enrolleeRole = _roleManager.FindByNameAsync(RoleConstants.Enrollee).GetAwaiter().GetResult();
@@ -22,71 +22,72 @@ namespace apc_bot_api.Models.Base.SeedData
 
 
             #region  Start
-            var startStep = _dbContext.Steps.FirstOrDefault(x => x.Code == StepConstants.Steps.Start);
-            if (startStep == null)
+            var startCommand = _dbContext.Commands.FirstOrDefault(x => x.Code == CommandConstants.Commands.Start);
+            if (startCommand == null)
             {
-                startStep = new Step
+                startCommand = new Command
                 {
                     Name = "Процесс регистрации клиента",
-                    Code = StepConstants.Steps.Start,
+                    Code = CommandConstants.Commands.Start,
                     Condition = "on_start_to_reg",
                     Description = "процесс регистрации",
                     Message = "Здравствуйте! \n\n Выберите одну из перечисленных ролей: студент, преподаватель и абитуриент. \n\n Вы можете воспользоваться одной из предоставленных Вам кнопок.",
                     Type = actionSelectorType
                 };
-                _dbContext.Steps.Add(startStep);
+                _dbContext.Commands.Add(startCommand);
             };
             #endregion
 
             #region AboutUs
-            var aboutUsStep = _dbContext.Steps.FirstOrDefault(x => x.Code == StepConstants.Steps.Help);
-            if (aboutUsStep == null)
+            var aboutUsCommand = _dbContext.Commands.FirstOrDefault(x => x.Code == CommandConstants.Commands.Help);
+            if (aboutUsCommand == null)
             {
-                aboutUsStep = new Step
+                aboutUsCommand = new Command
                 {
                     Name = "О нас",
-                    Code = StepConstants.Steps.AboutUs,
+                    Code = CommandConstants.Commands.AboutUs,
                     Condition = "about_us",
                     Description = "краткая информация об учебном заведении",
                     Message = "",
                     Type = infoType
                 };
-                _dbContext.Steps.Add(startStep);
+                _dbContext.Commands.Add(startCommand);
             }
             #endregion
 
             #region SendAppealByEnrollee
-            var sendAppealByEnrolleeStep = _dbContext.Steps.FirstOrDefault(x => x.Code == StepConstants.Steps.SendAppeal);
-            if (sendAppealByEnrolleeStep == null)
+            var sendAppealByEnrolleeCommand = _dbContext.Commands.FirstOrDefault(x => x.Code == CommandConstants.Commands.SendAppeal);
+            if (sendAppealByEnrolleeCommand == null)
             {
-                sendAppealByEnrolleeStep = new Step
+                sendAppealByEnrolleeCommand = new Command
                 {
                     Name = "предварительная подача заявки на поступление",
-                    Code = StepConstants.Steps.SendAppeal,
+                    Code = CommandConstants.Commands.SendAppeal,
                     Condition = "on_send_appeal_by_enrolle",
                     Description = "предварительная подача заявки на поступление",
                     Message = "предварительная подача заявки на поступление. Подаются лишь копии, после подачи необходимо посетить учебное заведение, чтобы передать подлинники из перечня документов",
                     Type = actionType
                 };
-                _dbContext.Steps.Add(sendAppealByEnrolleeStep);
+                _dbContext.Commands.Add(sendAppealByEnrolleeCommand);
 
-                var enrolleeRoleAccessToSendAppel = new StepRole(sendAppealByEnrolleeStep, enrolleeRole);
+                var enrolleeRoleAccessToSendAppel = new CommandRole(sendAppealByEnrolleeCommand, enrolleeRole);
+                _dbContext.CommandRoles.Add(enrolleeRoleAccessToSendAppel);
             }
             #endregion
 
             #region Help
-            var helpStep = _dbContext.Steps.FirstOrDefault(x => x.Code == StepConstants.Steps.Help);
-            if (helpStep == null)
+            var helpCommand = _dbContext.Commands.FirstOrDefault(x => x.Code == CommandConstants.Commands.Help);
+            if (helpCommand == null)
             {
-                helpStep = new Step
+                helpCommand = new Command
                 {
                     Name = "помощь",
-                    Code = StepConstants.Steps.Help,
+                    Code = CommandConstants.Commands.Help,
                     Condition = "help",
                     Description = "вывод всех комманд и возможностей",
                     Type = infoType
                 };
-                _dbContext.Steps.Add(helpStep);
+                _dbContext.Commands.Add(helpCommand);
             }
             #endregion
             _dbContext.SaveChanges();

@@ -5,47 +5,47 @@ using Microsoft.AspNetCore.Identity;
 
 namespace apc_bot_api.Models.Base.SeedData
 {
-    public static class StepTypesData
+    public static class CommandTypesData
     {
         public static void AddSeedData(AppDbContext _dbContext)
         {
-            var action = _dbContext.StepTypes.FirstOrDefault(x => x.Code == StepConstants.Types.Action);
+            var action = _dbContext.CommandTypes.FirstOrDefault(x => x.Code == CommandConstants.Types.Action);
             if (action == null)
             {
-                action = new StepType
+                action = new CommandType
                     (
                         "действие",
-                        StepConstants.Types.Action,
+                        CommandConstants.Types.Action,
                         "action",
                         "тип, указывающий что шаг является действием бот-клиента"
                     );
-                _dbContext.StepTypes.Add(action);
+                _dbContext.CommandTypes.Add(action);
             }
 
-            var information = _dbContext.StepTypes.FirstOrDefault(x => x.Code == StepConstants.Types.Information);
+            var information = _dbContext.CommandTypes.FirstOrDefault(x => x.Code == CommandConstants.Types.Information);
             if (information == null)
             {
-                information = new StepType
+                information = new CommandType
                     (
                         "информация",
-                        StepConstants.Types.Information,
+                        CommandConstants.Types.Information,
                         "information",
                         "шаг является информативным, не выполняющий какого-либо изменения в данных"
                     );
-                _dbContext.StepTypes.Add(information);
+                _dbContext.CommandTypes.Add(information);
             }
 
-            var actionSelector = _dbContext.StepTypes.FirstOrDefault(x => x.Code == StepConstants.Types.ActionSelector);
+            var actionSelector = _dbContext.CommandTypes.FirstOrDefault(x => x.Code == CommandConstants.Types.ActionSelector);
             if (actionSelector == null)
             {
-                actionSelector = new StepType
+                actionSelector = new CommandType
                     (
                         "действие с выбором",
-                        StepConstants.Types.ActionSelector,
+                        CommandConstants.Types.ActionSelector,
                         "action with selector",
                         "действие с последующей выборкой данных"
                     );
-                _dbContext.StepTypes.Add(actionSelector);
+                _dbContext.CommandTypes.Add(actionSelector);
             }
         }
     }

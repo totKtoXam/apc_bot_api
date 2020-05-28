@@ -18,6 +18,6 @@ namespace apc_bot_api.Models.Appeals
         /// <value>Кем подана заявка</value>
         public AppUser SentBy { get; set; }
 
-        public ICollection<EnrolleeAppealFile> EnrolleeAppealFiles { get; set; }
+        // public ICollection<EnrolleeAppealFile> EnrolleeAppealFiles { get; set; }
     }
 }

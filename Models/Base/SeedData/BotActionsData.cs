@@ -8,8 +8,8 @@ namespace apc_bot_api.Models.Base.SeedData
     {
         public static void AddSeedData(AppDbContext _dbContext)
         {
-            #region StartStepRolesActions
-            var startStep = _dbContext.Steps.FirstOrDefault(x => x.Code == StepConstants.Steps.Start);
+            #region StartCommandRolesActions
+            var startCommand = _dbContext.Commands.FirstOrDefault(x => x.Code == CommandConstants.Commands.Start);
 
             var studentRoleSelectAction = _dbContext.BotActions.FirstOrDefault(x => x.Code == BotConstants.Actions.ROLE_IS_STUDENT);
             if (studentRoleSelectAction == null)
@@ -19,7 +19,7 @@ namespace apc_bot_api.Models.Base.SeedData
                     Name = "студент",
                     Code = BotConstants.Actions.ROLE_IS_STUDENT,
                     Condition = BotConstants.Actions.ROLE_IS_STUDENT,
-                    CurrnetStep = startStep,
+                    CurrentCommand = startCommand,
                     IsEdit = true
                 };
                 _dbContext.BotActions.Add(studentRoleSelectAction);
@@ -33,7 +33,7 @@ namespace apc_bot_api.Models.Base.SeedData
                     Name = "преподаватель",
                     Code = BotConstants.Actions.ROLE_IS_TEACHER,
                     Condition = BotConstants.Actions.ROLE_IS_TEACHER,
-                    CurrnetStep = startStep,
+                    CurrentCommand = startCommand,
                     IsEdit = true
                 };
                 _dbContext.BotActions.Add(teacherRoleSelectAction);
@@ -47,7 +47,7 @@ namespace apc_bot_api.Models.Base.SeedData
                     Name = "абитуриент",
                     Code = BotConstants.Actions.ROLE_IS_ENROLLEE,
                     Condition = BotConstants.Actions.ROLE_IS_ENROLLEE,
-                    CurrnetStep = startStep,
+                    CurrentCommand = startCommand,
                     IsEdit = true
                 };
                 _dbContext.BotActions.Add(enrolleeRoleSelectAction);

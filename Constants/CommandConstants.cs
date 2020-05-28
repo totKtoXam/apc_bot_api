@@ -3,9 +3,9 @@ using apc_bot_api.Models.Types;
 
 namespace apc_bot_api.Constants
 {
-    public class StepConstants
+    public class CommandConstants
     {
-        public static class Steps
+        public static class Commands
         {
             public const string Start = "start";
             public const string Help = "help";

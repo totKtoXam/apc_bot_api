@@ -15,28 +15,37 @@ namespace apc_bot_api.Models.Base
             // CreateMap<Speciality, DisciplineSpecialityViewModel>()
             //     .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
             CreateMap<BotAction, BotActionViewModel>()
-                .ForMember(dest => dest.PrevStepId,
-                    opt => opt.MapFrom(
-                        src => src.PrevStep != null ? src.PrevStep.Id.ToString() : ""))
-                .ForMember(dest => dest.PrevStepCode,
-                    opt => opt.MapFrom(
-                        src => src.PrevStep != null ? src.PrevStep.Code : ""))
-                .ForMember(dest => dest.NextStepId,
-                    opt => opt.MapFrom(
-                        src => src.NextStep != null ? src.NextStep.Id.ToString() : ""))
-                .ForMember(dest => dest.NextStepCode,
-                    opt => opt.MapFrom(
-                        src => src.NextStep != null ? src.NextStep.Code : ""));
-
-            CreateMap<Step, StepViewModel>()
-                .ForMember(dest => dest.StepId,
+                .ForMember(dest => dest.Id,
                     opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.StepCode,
-                    opt => opt.MapFrom(src => src.Code))
-                .ForMember(dest => dest.StepName,
-                    opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.StepCondition,
-                    opt => opt.MapFrom(src => src.Condition));
+                .ForMember(dest => dest.PrevCmdId,
+                    opt => opt.MapFrom(src => src.PrevCommand.Id))
+                .ForMember(dest => dest.PrevCmdCode,
+                    opt => opt.MapFrom(src => src.PrevCommand.Code))
+                .ForMember(dest => dest.CurrentCmdId,
+                    opt => opt.MapFrom(src => src.CurrentCommand.Id))
+                .ForMember(dest => dest.CurrentCmdCode,
+                    opt => opt.MapFrom(src => src.CurrentCommand.Code))
+                .ForMember(dest => dest.CurrentCmdCond,
+                    opt => opt.MapFrom(src => src.CurrentCommand.Condition))
+                .ForMember(dest => dest.CurrentCmdDesc,
+                    opt => opt.MapFrom(src => src.CurrentCommand.Description))
+                .ForMember(dest => dest.NextCmdId,
+                    opt => opt.MapFrom(src => src.NextCommand.Id))
+                .ForMember(dest => dest.NextCmdCode,
+                    opt => opt.MapFrom(src => src.NextCommand.Code));
+
+            CreateMap<Command, CommandViewModel>()
+                .ForMember(dest => dest.TypeId, opt => opt.MapFrom(src => src.Type.Id))
+                .ForMember(dest => dest.TypeCode, opt => opt.MapFrom(src => src.Type.Code))
+                .ForMember(dest => dest.TypeCondition, opt => opt.MapFrom(src => src.Type.Condition))
+                .ForMember(dest => dest.TypeDesc, opt => opt.MapFrom(src => src.Type.Description))
+                .ForMember(dest => 
+                dest.ActionList, opt => opt.MapFrom(src => 
+                src.BotActions))
+                ;
+
+            // CreateMap<CommandRole, CommandRoleViewModel>()
+            //     .ForMember(dest => dest.)
 
             CreateMap<ClientBot, ClientBotViewModel>();
 

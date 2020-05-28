@@ -23,7 +23,7 @@ namespace apc_bot_api.Models.Base
 
             // _dbContext.Database.EnsureDeleted();
             // _dbContext.Database.EnsureCreated();
-            _dbContext.Database.Migrate();
+            // _dbContext.Database.Migrate();
 
 
             #region Roles
@@ -31,7 +31,7 @@ namespace apc_bot_api.Models.Base
             #endregion
 
             #region Types
-            StepTypesData.AddSeedData(_dbContext);
+            CommandTypesData.AddSeedData(_dbContext);
             FileTypesData.AddSeedData(_dbContext);
             InfoTypes.AddSeedData(_dbContext);
             #endregion
@@ -44,7 +44,7 @@ namespace apc_bot_api.Models.Base
 
 
             #region Content
-            StepsData.AddSeedData(_dbContext, _roleManager);
+            CommandsData.AddSeedData(_dbContext, _roleManager);
             BotActionsData.AddSeedData(_dbContext);
             #endregion
         }

@@ -9,7 +9,7 @@ namespace apc_bot_api.Models.Content
         public string ShortDescription { get; set; }
         public string Description { get; set; }
         public InfoType Type { get; set; }
-        public Step Step { get; set; }
-        public ICollection<InfoFile> InfoFiles { get; set; }
+        public Command Command { get; set; }
+        // public ICollection<InfoFile> InfoFiles { get; set; }
     }
 }

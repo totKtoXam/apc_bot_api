@@ -283,7 +283,7 @@ namespace apc_bot_api.Migrations
                     b.Property<string>("Condition")
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("CurrnetStepId")
+                    b.Property<Guid?>("CurrentCommandId")
                         .HasColumnType("uuid");
 
                     b.Property<bool>("IsEdit")
@@ -292,19 +292,19 @@ namespace apc_bot_api.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("NextStepId")
+                    b.Property<Guid?>("NextCommandId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("PrevStepId")
+                    b.Property<Guid?>("PrevCommandId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CurrnetStepId");
+                    b.HasIndex("CurrentCommandId");
 
-                    b.HasIndex("NextStepId");
+                    b.HasIndex("NextCommandId");
 
-                    b.HasIndex("PrevStepId");
+                    b.HasIndex("PrevCommandId");
 
                     b.ToTable("BotActions");
                 });
@@ -335,6 +335,76 @@ namespace apc_bot_api.Migrations
                     b.ToTable("ClientBots");
                 });
 
+            modelBuilder.Entity("apc_bot_api.Models.Content.Command", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Code")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Condition")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Message")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<string>("NextCommandCode")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PrevCommandCode")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("TypeId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TypeId");
+
+                    b.ToTable("Commands");
+                });
+
+            modelBuilder.Entity("apc_bot_api.Models.Content.CommandFile", b =>
+                {
+                    b.Property<Guid>("CommandId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UploadedFileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("FileId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("CommandId", "UploadedFileId");
+
+                    b.HasIndex("FileId");
+
+                    b.ToTable("CommandFiles");
+                });
+
+            modelBuilder.Entity("apc_bot_api.Models.Content.CommandRole", b =>
+                {
+                    b.Property<Guid>("CommandId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("RoleId")
+                        .HasColumnType("text");
+
+                    b.HasKey("CommandId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("CommandRoles");
+                });
+
             modelBuilder.Entity("apc_bot_api.Models.Content.InfoFile", b =>
                 {
                     b.Property<Guid>("InfoId")
@@ -359,6 +429,9 @@ namespace apc_bot_api.Migrations
                     b.Property<string>("Code")
                         .HasColumnType("text");
 
+                    b.Property<Guid?>("CommandId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Condition")
                         .HasColumnType("text");
 
@@ -371,89 +444,16 @@ namespace apc_bot_api.Migrations
                     b.Property<string>("ShortDescription")
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("StepId")
-                        .HasColumnType("uuid");
-
                     b.Property<Guid?>("TypeId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("StepId");
+                    b.HasIndex("CommandId");
 
                     b.HasIndex("TypeId");
 
                     b.ToTable("Informations");
-                });
-
-            modelBuilder.Entity("apc_bot_api.Models.Content.Step", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Code")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Condition")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Message")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
-
-                    b.Property<string>("NextStepCode")
-                        .HasColumnType("text");
-
-                    b.Property<string>("PrevStepCode")
-                        .HasColumnType("text");
-
-                    b.Property<Guid?>("TypeId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TypeId");
-
-                    b.ToTable("Steps");
-                });
-
-            modelBuilder.Entity("apc_bot_api.Models.Content.StepFile", b =>
-                {
-                    b.Property<Guid>("StepId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("UploadedFileId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("FileId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("StepId", "UploadedFileId");
-
-                    b.HasIndex("FileId");
-
-                    b.ToTable("StepFiles");
-                });
-
-            modelBuilder.Entity("apc_bot_api.Models.Content.StepRole", b =>
-                {
-                    b.Property<Guid>("StepId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("RoleId")
-                        .HasColumnType("text");
-
-                    b.HasKey("StepId", "RoleId");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("StepRoles");
                 });
 
             modelBuilder.Entity("apc_bot_api.Models.Content.UploadedFile", b =>
@@ -491,6 +491,29 @@ namespace apc_bot_api.Migrations
                     b.HasIndex("UploadedById");
 
                     b.ToTable("UploadedFiles");
+                });
+
+            modelBuilder.Entity("apc_bot_api.Models.Types.CommandType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Code")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Condition")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CommandTypes");
                 });
 
             modelBuilder.Entity("apc_bot_api.Models.Types.FileType", b =>
@@ -537,29 +560,6 @@ namespace apc_bot_api.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("InfoTypes");
-                });
-
-            modelBuilder.Entity("apc_bot_api.Models.Types.StepType", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Code")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Condition")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("StepTypes");
                 });
 
             modelBuilder.Entity("apc_bot_api.Models.Users.Student", b =>
@@ -655,7 +655,7 @@ namespace apc_bot_api.Migrations
             modelBuilder.Entity("apc_bot_api.Models.Appeals.EnrolleeAppealFile", b =>
                 {
                     b.HasOne("apc_bot_api.Models.Appeals.EnrolleeAppeal", "Appeal")
-                        .WithMany("EnrolleeAppealFiles")
+                        .WithMany()
                         .HasForeignKey("AppealId1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -669,17 +669,18 @@ namespace apc_bot_api.Migrations
 
             modelBuilder.Entity("apc_bot_api.Models.Bots.BotAction", b =>
                 {
-                    b.HasOne("apc_bot_api.Models.Content.Step", "CurrnetStep")
-                        .WithMany()
-                        .HasForeignKey("CurrnetStepId");
+                    b.HasOne("apc_bot_api.Models.Content.Command", "CurrentCommand")
+                        .WithMany("BotActions")
+                        .HasForeignKey("CurrentCommandId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("apc_bot_api.Models.Content.Step", "NextStep")
+                    b.HasOne("apc_bot_api.Models.Content.Command", "NextCommand")
                         .WithMany()
-                        .HasForeignKey("NextStepId");
+                        .HasForeignKey("NextCommandId");
 
-                    b.HasOne("apc_bot_api.Models.Content.Step", "PrevStep")
+                    b.HasOne("apc_bot_api.Models.Content.Command", "PrevCommand")
                         .WithMany()
-                        .HasForeignKey("PrevStepId");
+                        .HasForeignKey("PrevCommandId");
                 });
 
             modelBuilder.Entity("apc_bot_api.Models.Bots.ClientBot", b =>
@@ -687,6 +688,43 @@ namespace apc_bot_api.Migrations
                     b.HasOne("apc_bot_api.Models.Base.AppUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
+                });
+
+            modelBuilder.Entity("apc_bot_api.Models.Content.Command", b =>
+                {
+                    b.HasOne("apc_bot_api.Models.Types.CommandType", "Type")
+                        .WithMany()
+                        .HasForeignKey("TypeId");
+                });
+
+            modelBuilder.Entity("apc_bot_api.Models.Content.CommandFile", b =>
+                {
+                    b.HasOne("apc_bot_api.Models.Content.Command", "Command")
+                        .WithMany()
+                        .HasForeignKey("CommandId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("apc_bot_api.Models.Content.UploadedFile", "File")
+                        .WithMany()
+                        .HasForeignKey("FileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("apc_bot_api.Models.Content.CommandRole", b =>
+                {
+                    b.HasOne("apc_bot_api.Models.Content.Command", "Command")
+                        .WithMany()
+                        .HasForeignKey("CommandId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("apc_bot_api.Models.Content.InfoFile", b =>
@@ -698,7 +736,7 @@ namespace apc_bot_api.Migrations
                         .IsRequired();
 
                     b.HasOne("apc_bot_api.Models.Content.Information", "Info")
-                        .WithMany("InfoFiles")
+                        .WithMany()
                         .HasForeignKey("InfoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -706,50 +744,13 @@ namespace apc_bot_api.Migrations
 
             modelBuilder.Entity("apc_bot_api.Models.Content.Information", b =>
                 {
-                    b.HasOne("apc_bot_api.Models.Content.Step", "Step")
+                    b.HasOne("apc_bot_api.Models.Content.Command", "Command")
                         .WithMany()
-                        .HasForeignKey("StepId");
+                        .HasForeignKey("CommandId");
 
                     b.HasOne("apc_bot_api.Models.Types.InfoType", "Type")
                         .WithMany()
                         .HasForeignKey("TypeId");
-                });
-
-            modelBuilder.Entity("apc_bot_api.Models.Content.Step", b =>
-                {
-                    b.HasOne("apc_bot_api.Models.Types.StepType", "Type")
-                        .WithMany()
-                        .HasForeignKey("TypeId");
-                });
-
-            modelBuilder.Entity("apc_bot_api.Models.Content.StepFile", b =>
-                {
-                    b.HasOne("apc_bot_api.Models.Content.UploadedFile", "File")
-                        .WithMany()
-                        .HasForeignKey("FileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("apc_bot_api.Models.Content.Step", "Step")
-                        .WithMany("StepFiles")
-                        .HasForeignKey("StepId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("apc_bot_api.Models.Content.StepRole", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", "Role")
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("apc_bot_api.Models.Content.Step", "Step")
-                        .WithMany("StepRoles")
-                        .HasForeignKey("StepId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("apc_bot_api.Models.Content.UploadedFile", b =>

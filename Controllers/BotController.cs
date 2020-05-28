@@ -33,18 +33,18 @@ namespace apc_bot_api.Controllers
             _roleManager = roleManager;
         }
 
-        [HttpGet("actions/{stepCode}")]
-        public async Task<IActionResult> GetBotActionsAsync(string stepCode)
+        [HttpGet("actions/{commandCode}")]
+        public async Task<IActionResult> GetBotActionsAsync(string commandCode)
         {
-            var currentStep = await _dbContext.Steps
-                                                .Where(x => x.Code == stepCode)
-                                                .Select(x => _mapper.Map<StepViewModel>(x))
+            var currentCommand = await _dbContext.Commands
+                                                .Where(x => x.Code == commandCode)
+                                                .Select(x => _mapper.Map<CommandViewModel>(x))
                                                 .SingleOrDefaultAsync();
-            if (currentStep == null)
+            if (currentCommand == null)
                 return NotFound("STEP_NOT_FOUND");
-            var actViewModeList = await _botRepos.GetBotActionsByPrevStepCodeAsync(stepCode);
-            currentStep.ActionList = actViewModeList;
-            return Ok(currentStep);
+            var actViewModeList = await _botRepos.GetBotActionsByPrevCommandCodeAsync(commandCode);
+            currentCommand.ActionList = actViewModeList;
+            return Ok(currentCommand);
         }
 
         [HttpGet("command/{commandCode}")]
@@ -53,10 +53,10 @@ namespace apc_bot_api.Controllers
             return Ok();
         }
 
-        [HttpGet("checkStep/{stepCode}")]
-        public IActionResult CheckStep(string stepCode)
+        [HttpGet("checkCommand/{commandCode}")]
+        public IActionResult CheckCommand(string commandCode)
         {
-            if (_dbContext.Steps.Any(x => x.Code == stepCode))
+            if (_dbContext.Commands.Any(x => x.Code == commandCode))
                 return Ok("STEP_EXISTS");
             else
                 return NotFound("STEP_NOT_EXISTS");
@@ -103,11 +103,11 @@ namespace apc_bot_api.Controllers
             //     return BadRequest("INVALID_DATA");
         }
 
-        // [HttpGet("stepWithActions/{actCode}")]
-        // public async Task<IActionResult> GetStepWithActionsByActionCode(string actCode)
+        // [HttpGet("commandWithActions/{actCode}")]
+        // public async Task<IActionResult> GetCommandWithActionsByActionCode(string actCode)
         // {
-        //     var step = await _botRepos.GetStepWithActionsByActionCode(actCode);
-        //     return Ok(step);
+        //     var command = await _botRepos.GetCommandWithActionsByActionCode(actCode);
+        //     return Ok(command);
         // }
     }
 }
