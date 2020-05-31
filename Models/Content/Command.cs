@@ -30,6 +30,7 @@ namespace apc_bot_api.Models.Content
         public string TypeCondition { get; set; }
         public string TypeDesc { get; set; }
         public List<BotActionViewModel> ActionList { get; set; }
+        public dynamic Data { get; set; }
     }
 
     public class CommandExecForm

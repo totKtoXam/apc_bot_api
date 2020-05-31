@@ -21,9 +21,6 @@ namespace apc_bot_api.Models.Bots
         public string MiddleName { get; set; }
         public string Email { get; set; }
         public string Phone { get; set; }
-        public string ChatId { get; set; }
-        public string BotChannel { get; set; }
-
         // ClientStudent
         public string TicketNumber { get; set; }
         public string Group { get; set; }

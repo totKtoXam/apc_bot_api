@@ -17,7 +17,7 @@ namespace apc_bot_api.Repositories
     {
         Task<List<BotActionViewModel>> GetBotActionsByPrevCommandCodeAsync(string commandCode);
         // Task<ClientBotViewModel> PostClientAsync(ClientBotForm clientForm, string actCode = null);
-        Task<ClientBotViewModel> CreateBotClientAsync(ClientBotForm clientBotForm);
+        Task<Result<ClientBotViewModel>> CreateBotClientAsync(GeneralQuery generalQuery, ClientBotForm clientBotForm);
     }
     public class BotRepository : IBotRepository
     {
@@ -56,10 +56,10 @@ namespace apc_bot_api.Repositories
             return botActionModelList;
         }
 
-        public async Task<ClientBotViewModel> CreateBotClientAsync(ClientBotForm clientBotForm)
+        public async Task<Result<ClientBotViewModel>> CreateBotClientAsync(GeneralQuery generalQuery, ClientBotForm clientBotForm)
         {
-            if (string.IsNullOrEmpty(clientBotForm.ChatId))
-                return new ClientBotViewModel(400, "CHAT_ID_IS_NULL");
+            if (string.IsNullOrEmpty(generalQuery.ChatId))
+                return new Result<ClientBotViewModel>(400, "CHAT_ID_IS_NULL");
 
             // if (clientBotForm.BotChannel == BotChannelConstants.Telegram)
             //     newClient = await _dbContext.ClientBots.FirstOrDefaultAsync(x => x.TeleChatId == clientBotForm.ChatId);
@@ -68,11 +68,11 @@ namespace apc_bot_api.Repositories
             // if (clientBotForm.BotChannel == BotChannelConstants.WhatsApp)
             //     newClient = await _dbContext.ClientBots.FirstOrDefaultAsync(x => x.WhatsAppChatId == clientBotForm.ChatId);
 
-            if (await CheckExistsClientAsync(clientBotForm))
-                return new ClientBotViewModel(400, "CLIENT_EXISTS");
+            if (await CheckExistsClientAsync(clientBotForm, generalQuery))
+                return new Result<ClientBotViewModel>(400, "CLIENT_EXISTS");
 
             if (await _userManager.FindByEmailAsync(clientBotForm.Email) != null)
-                return new ClientBotViewModel(400, "USER_EXISTS");
+                return new Result<ClientBotViewModel>(400, "USER_EXISTS");
 
             AppUser newUser = new AppUser();
             newUser.UserName = clientBotForm.Email;
@@ -94,7 +94,7 @@ namespace apc_bot_api.Repositories
 
                 ClientBot newClient = new ClientBot();
                 newClient.User = newUser;
-                newClient = SetChatIdByChannel(newClient, clientBotForm);
+                newClient = SetChatIdByChannel(newClient, clientBotForm, generalQuery);
                 await _dbContext.ClientBots.AddAsync(newClient);
 
                 switch (clientBotForm.RoleCode)
@@ -114,24 +114,26 @@ namespace apc_bot_api.Repositories
                     default:
                         break;
                 }
+
+
                 await _dbContext.SaveChangesAsync();
 
-                var resultClientModel = new ClientBotViewModel(200, "CREATE_SUCCESS");
-                resultClientModel.ClientBotId = newClient.Id;
+                var resultClientModel = new Result<ClientBotViewModel>(200, "CREATE_SUCCESS");
+                resultClientModel.Data.ClientBotId = newClient.Id;
                 return resultClientModel;
             }
             else
-                return new ClientBotViewModel(400, "CREATE_ERROR");
+                return new Result<ClientBotViewModel>(400, "CREATE_ERROR");
         }
 
-        private ClientBot SetChatIdByChannel(ClientBot clientBot, ClientBotForm clientBotForm)
+        private ClientBot SetChatIdByChannel(ClientBot clientBot, ClientBotForm clientBotForm, GeneralQuery generalQuery)
         {
-            if (clientBotForm.BotChannel == BotConstants.Channels.Telegram)
-                clientBot.TeleChatId = clientBotForm.ChatId;
-            if (clientBotForm.BotChannel == BotConstants.Channels.VKontakte)
-                clientBot.VkChatId = clientBotForm.ChatId;
-            if (clientBotForm.BotChannel == BotConstants.Channels.WhatsApp)
-                clientBot.WhatsAppChatId = clientBotForm.ChatId;
+            if (generalQuery.Channel == BotConstants.Channels.Telegram)
+                clientBot.TeleChatId = generalQuery.ChatId;
+            if (generalQuery.Channel == BotConstants.Channels.VKontakte)
+                clientBot.VkChatId = generalQuery.ChatId;
+            if (generalQuery.Channel == BotConstants.Channels.WhatsApp)
+                clientBot.WhatsAppChatId = generalQuery.ChatId;
 
             return clientBot;
         }
@@ -150,7 +152,7 @@ namespace apc_bot_api.Repositories
             return password;
         }
 
-        private async Task<bool> CheckExistsClientAsync(ClientBotForm clientBotForm)
+        private async Task<bool> CheckExistsClientAsync(ClientBotForm clientBotForm, GeneralQuery generalQuery)
         {
             switch (clientBotForm.RoleCode)
             {
@@ -161,14 +163,14 @@ namespace apc_bot_api.Repositories
                 case BotConstants.Actions.ROLE_IS_ENROLLEE:
                     if (await _userManager.FindByEmailAsync(clientBotForm.Email) == null)
                     {
-                        if (clientBotForm.BotChannel == BotConstants.Channels.Telegram)
-                            if (await _dbContext.ClientBots.AnyAsync(x => x.TeleChatId == clientBotForm.ChatId))
+                        if (generalQuery.Channel == BotConstants.Channels.Telegram)
+                            if (await _dbContext.ClientBots.AnyAsync(x => x.TeleChatId == generalQuery.ChatId))
                                 return true;
-                        if (clientBotForm.BotChannel == BotConstants.Channels.VKontakte)
-                            if (await _dbContext.ClientBots.AnyAsync(x => x.VkChatId == clientBotForm.ChatId))
+                        if (generalQuery.Channel == BotConstants.Channels.VKontakte)
+                            if (await _dbContext.ClientBots.AnyAsync(x => x.VkChatId == generalQuery.ChatId))
                                 return true;
-                        if (clientBotForm.BotChannel == BotConstants.Channels.WhatsApp)
-                            if (await _dbContext.ClientBots.AnyAsync(x => x.WhatsAppChatId == clientBotForm.ChatId))
+                        if (generalQuery.Channel == BotConstants.Channels.WhatsApp)
+                            if (await _dbContext.ClientBots.AnyAsync(x => x.WhatsAppChatId == generalQuery.ChatId))
                                 return true;
                     }
                     else

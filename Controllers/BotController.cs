@@ -87,11 +87,11 @@ namespace apc_bot_api.Controllers
         // }
 
         [HttpPost("createClient")]
-        public async Task<IActionResult> CreateBotClient([FromBody] ClientBotForm clientBotForm)
+        public async Task<IActionResult> CreateBotClient([FromQuery] GeneralQuery generalQuery, [FromBody] ClientBotForm clientBotForm)
         {
             // if (!ModelState.IsValid)
             // {
-                var resultModel = await _botRepos.CreateBotClientAsync(clientBotForm);
+                var resultModel = await _botRepos.CreateBotClientAsync(generalQuery, clientBotForm);
                 // if (resultModel.RESULT_CODE == 200)
                     return Ok(resultModel);
                 // else if (resultModel.RESULT_CODE == 404)

@@ -13,11 +13,15 @@ namespace apc_bot_api.Controllers
     {
         private readonly AppDbContext _dbContext;
         private readonly ICommandRepository _command;
+        private readonly IBotRepository _bot;
         public CommandController(AppDbContext dbContext,
-            ICommandRepository command)
+            ICommandRepository command,
+            IBotRepository bot
+            )
         {
             _dbContext = dbContext;
             _command = command;
+            _bot = bot;
         }
 
         // [HttpGet("check/{command}")]
@@ -27,17 +31,24 @@ namespace apc_bot_api.Controllers
         // }
 
         [HttpGet]
-        public async Task<IActionResult> GetCommands([FromQuery] GeneralQuery gnrlQrData)
+        public async Task<IActionResult> GetCommandList([FromQuery] GeneralQuery gnrlQrData)
         {
             var result = await _command.GetCommandListAsync(gnrlQrData);
             return Ok(result);
         }
 
-        [HttpPost("{commandName}")]
-        public async Task<IActionResult> ExecuteCommand([FromQuery] GeneralQuery generalQuery, string commandName)
+        [HttpGet("{commandName}")]
+        public async Task<IActionResult> GetCommand([FromQuery] GeneralQuery generalQuery, string commandName)
         {
-            var result = await _command.ExecuteCommandAsync(generalQuery, commandName);
+            var result = await _command.GetCommandAsync(generalQuery, commandName);
             return Ok(result);
         }
+
+        // [HttpPost("{commandName}")]
+        // public async Task<IActionResult> CommandApply([FromQuery] GeneralQuery generalQuery, [FromBody] object commingData, string commandName)
+        // {
+        //     var result = await _command.ApplyCommandAsync(generalQuery, commandName, commingData);
+        //     return Ok(result);
+        // }
     }
 }
