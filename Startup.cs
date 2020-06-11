@@ -53,6 +53,7 @@ namespace apc_bot_api
             services.AddTransient<ISendlerRepository, SendlerRepository>();
             services.AddTransient<IClientRepository, ClientRepository>();
             services.AddTransient<ICommandRepository, CommandRepository>();
+            services.AddTransient<IInfoRepository, InfoRepository>();
             // services.AddScoped<IService, Service>();
 
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();

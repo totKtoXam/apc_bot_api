@@ -1,13 +1,17 @@
 using System.Linq;
 using System.Threading.Tasks;
+using apc_bot_api.Helpers;
 using apc_bot_api.Models.Base;
 using apc_bot_api.Models.Bots;
 using apc_bot_api.Models.Content;
 using apc_bot_api.Repositories;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static apc_bot_api.Delegates;
 
 namespace apc_bot_api.Controllers
 {
@@ -19,18 +23,21 @@ namespace apc_bot_api.Controllers
         private readonly IBotRepository _botRepos;
         private readonly IMapper _mapper;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly UserManager<AppUser> _userManager;
 
         public BotController(
                 AppDbContext dbContext,
                 IBotRepository botRepos,
                 IMapper mapper,
-                RoleManager<IdentityRole> roleManager
+                RoleManager<IdentityRole> roleManager,
+                UserManager<AppUser> userManager
             )
         {
             _dbContext = dbContext;
             _botRepos = botRepos;
             _mapper = mapper;
             _roleManager = roleManager;
+            _userManager = userManager;
         }
 
         [HttpGet("actions/{commandCode}")]
@@ -89,18 +96,26 @@ namespace apc_bot_api.Controllers
         [HttpPost("createClient")]
         public async Task<IActionResult> CreateBotClient([FromQuery] GeneralQuery generalQuery, [FromBody] ClientBotForm clientBotForm)
         {
-            // if (!ModelState.IsValid)
-            // {
-                var resultModel = await _botRepos.CreateBotClientAsync(generalQuery, clientBotForm);
-                // if (resultModel.RESULT_CODE == 200)
-                    return Ok(resultModel);
-                // else if (resultModel.RESULT_CODE == 404)
-                    // return NotFound(resultModel.RESULT_NAME);
-                // else
-                    // return BadRequest(resultModel.RESULT_NAME);
-            // }
-            // else
-            //     return BadRequest("INVALID_DATA");
+            var resultModel = await _botRepos.CreateBotClientAsync(generalQuery, clientBotForm);
+
+            if (resultModel.Code == 200)
+            {
+                var foundUser = await _userManager.FindByNameAsync(resultModel.Data.Email);
+                if (foundUser != null)
+                {
+                    string code = await _userManager.GenerateEmailConfirmationTokenAsync(foundUser);
+                    string callbackUrl = Url.Action("ConfirmEmail", "Bot", new { userId = foundUser.Id, code = code }, protocol: HttpContext.Request.Scheme);
+
+                    EmailHelper _emailHelper = new EmailHelper();
+                    string userFullName = (string.IsNullOrEmpty(foundUser.LastName) ? "" : foundUser.LastName + " ") +
+                                            (string.IsNullOrEmpty(foundUser.FirstName) ? "" : foundUser.FirstName + " ") +
+                                            (string.IsNullOrEmpty(foundUser.MiddleName) ? "" : foundUser.MiddleName);
+                    string messageText = $"Вы зарегистрировались в \"APC BOT SERVICE\". Для получения рассылки необходимо подтвердить свою электронную почту перейдя по <a href='{callbackUrl}'>ссылке</a>";
+
+                    await _emailHelper.SendEmailAsync(foundUser.Email, userFullName, messageText);
+                }
+            }
+            return Ok(resultModel);
         }
 
         // [HttpGet("commandWithActions/{actCode}")]
@@ -109,5 +124,25 @@ namespace apc_bot_api.Controllers
         //     var command = await _botRepos.GetCommandWithActionsByActionCode(actCode);
         //     return Ok(command);
         // }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> ConfirmEmail(string userId, string code)
+        {
+            if (userId == null || code == null)
+            {
+                return BadRequest("не верный код или идентификатор");
+            }
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound("Пользователь не найден");
+            }
+            var result = await _userManager.ConfirmEmailAsync(user, code);
+            if (result.Succeeded)
+                return Ok("Электронная почта подтверждена");
+            else
+                return NotFound("Действие ссылки истекла. Обратитесь к администратору");
+        }
     }
 }

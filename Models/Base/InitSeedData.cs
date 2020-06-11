@@ -47,6 +47,10 @@ namespace apc_bot_api.Models.Base
             CommandsData.AddSeedData(_dbContext, _roleManager);
             BotActionsData.AddSeedData(_dbContext);
             #endregion
+
+            #region  Information
+            InfoData.AddSeedData(_dbContext);
+            #endregion
         }
     }
 }

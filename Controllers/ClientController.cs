@@ -23,7 +23,7 @@ namespace apc_bot_api.Controllers
         {
             var result = _client.GetUserModelList<TeacherViewModel>("teachers");
             return Ok(result);
-        }
+        }                        
 
         [HttpGet("student")]
         public IActionResult GetStudentList()
@@ -38,6 +38,5 @@ namespace apc_bot_api.Controllers
             var result = _client.GetUserModelList<TeacherViewModel>("enrollees");
             return Ok(result);
         }
-
     }
 }

@@ -10,6 +10,7 @@ namespace apc_bot_api.Constants
             public const string Start = "start";
             public const string Help = "help";
             public const string AboutUs = "aboutUs";
+            public const string Specs = "specs";
             public const string SendAppeal = "sendAppeal";
         }
 

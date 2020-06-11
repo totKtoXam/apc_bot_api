@@ -37,11 +37,6 @@ namespace apc_bot_api.Models.Bots
     public class ClientBotViewModel
     {
         public ClientBotViewModel() { }
-        public ClientBotViewModel(int _RESULT_CODE, string _RESULT_NAME)
-        {
-            RESULT_CODE = _RESULT_CODE;
-            RESULT_NAME = _RESULT_NAME;
-        }
         public int ClientBotId { get; set; }
         public string Email { get; set; }
         public string Phone { get; set; }

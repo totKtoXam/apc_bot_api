@@ -1,15 +1,20 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using apc_bot_api.Constants;
+using apc_bot_api.Helpers;
 using apc_bot_api.Models.Base;
 using apc_bot_api.Models.Bots;
-using apc_bot_api.Models.Content;
 using apc_bot_api.Models.Users;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
+using static apc_bot_api.Constants.BotConstants;
+using static apc_bot_api.Delegates;
 
 namespace apc_bot_api.Repositories
 {
@@ -25,7 +30,6 @@ namespace apc_bot_api.Repositories
         private readonly IMapper _mapper;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<AppUser> _userManager;
-
         public BotRepository(
             AppDbContext dbContext, IMapper mapper, RoleManager<IdentityRole> roleManager,
             UserManager<AppUser> userManager)
@@ -45,6 +49,62 @@ namespace apc_bot_api.Repositories
                                     .Select(x => _mapper.Map<BotActionViewModel>(x))
                                     .FirstOrDefaultAsync(x => x.Code == actCode);
 
+        private IQueryable<ClientBot> ClientBotsAsQueryableAsync => _dbContext.ClientBots.Include(x => x.User).AsQueryable();
+
+        private ClientBot GetClientBotFirstOrDefault
+        (List<ClientBot> source, string userId = null, string chatId = null, string channel = null, string email = null) =>
+                                    !string.IsNullOrEmpty(userId) ?
+                                    source.FirstOrDefault(x => x.User.Id == userId)
+                                        :
+                                    !string.IsNullOrEmpty(email) ?
+                                    source.FirstOrDefault(x => x.User.UserName.ToUpper() == email.ToUpper())
+                                        :
+                                    !(string.IsNullOrEmpty(chatId) && string.IsNullOrEmpty(channel)) ?
+                                    source.FirstOrDefault(x =>
+                                        channel == BotConstants.Channels.Telegram ?
+                                        x.TeleChatId == chatId
+                                            :
+                                        channel == BotConstants.Channels.VKontakte ?
+                                        x.VkChatId == chatId
+                                            :
+                                        channel == BotConstants.Channels.WhatsApp ?
+                                        x.WhatsAppChatId == chatId
+                                            :
+                                        false
+                                    )
+                                        :
+                                    null
+                                    ;
+
+        private ClientBot GetClientBotByFoundParam(
+            List<ClientBot> source, FoundParams foundBy, string paramValue, string channel = null
+        ) =>
+            foundBy == FoundParams.ByUserId ?
+            source.FirstOrDefault(src => src.User.Id == paramValue)
+                :
+            foundBy == FoundParams.ByTicket ?
+            source.FirstOrDefault(src => _dbContext.Students.FirstOrDefault(st => st.ClientBot.Id == src.Id).TicketNumber == paramValue)
+                :
+            foundBy == FoundParams.ByEmail ?
+            source.FirstOrDefault(src => src.User.UserName == paramValue)
+                :
+            foundBy == FoundParams.ByChatId ?
+            source.FirstOrDefault(src =>
+                channel == BotConstants.Channels.Telegram ?
+                src.TeleChatId == paramValue
+                    :
+                channel == BotConstants.Channels.VKontakte ?
+                src.VkChatId == paramValue
+                    :
+                channel == BotConstants.Channels.WhatsApp ?
+                src.WhatsAppChatId == paramValue
+                    :
+                false
+            )
+                :
+            null
+        ;
+
         public async Task<List<BotActionViewModel>> GetBotActionsByPrevCommandCodeAsync(string commandCode)
         {
             var botActionModelList = await this.BotActions
@@ -56,10 +116,26 @@ namespace apc_bot_api.Repositories
             return botActionModelList;
         }
 
+        private async Task<ClientBot> GetClientBotAsync(ClientBotForm clientBotData, GeneralQuery generalQuery)
+        {
+            var clientBotList = await this.ClientBotsAsQueryableAsync.ToListAsync();
+            switch (clientBotData.RoleCode)
+            {
+                case BotConstants.Actions.ROLE_IS_ENROLLEE:
+                    return GetClientBotByFoundParam(clientBotList, FoundParams.ByEmail, clientBotData.Email);
+                case BotConstants.Actions.ROLE_IS_STUDENT:
+                    return GetClientBotByFoundParam(clientBotList, FoundParams.ByEmail, clientBotData.Email);
+                case BotConstants.Actions.ROLE_IS_TEACHER:
+                    return GetClientBotByFoundParam(clientBotList, FoundParams.ByEmail, clientBotData.Email);
+                default:
+                    return null;
+            }
+        }
+
         public async Task<Result<ClientBotViewModel>> CreateBotClientAsync(GeneralQuery generalQuery, ClientBotForm clientBotForm)
         {
-            if (string.IsNullOrEmpty(generalQuery.ChatId))
-                return new Result<ClientBotViewModel>(400, "CHAT_ID_IS_NULL");
+            if (FunctionsHelper.StringsIsNull(generalQuery.ChatId, generalQuery.Channel))
+                return new Result<ClientBotViewModel>(400, "CHAT_ID_OR_CHANNEL_IS_NULL", _message: "Ошибка со стороны сервера просим прощения за предоставленные нами неудобства.");
 
             // if (clientBotForm.BotChannel == BotChannelConstants.Telegram)
             //     newClient = await _dbContext.ClientBots.FirstOrDefaultAsync(x => x.TeleChatId == clientBotForm.ChatId);
@@ -68,11 +144,24 @@ namespace apc_bot_api.Repositories
             // if (clientBotForm.BotChannel == BotChannelConstants.WhatsApp)
             //     newClient = await _dbContext.ClientBots.FirstOrDefaultAsync(x => x.WhatsAppChatId == clientBotForm.ChatId);
 
-            if (await CheckExistsClientAsync(clientBotForm, generalQuery))
-                return new Result<ClientBotViewModel>(400, "CLIENT_EXISTS");
+            // var foundClient = await GetClientBotByFoundParam
 
-            if (await _userManager.FindByEmailAsync(clientBotForm.Email) != null)
-                return new Result<ClientBotViewModel>(400, "USER_EXISTS");
+            // if ((await CheckExistsClientAsync(clientBotForm, generalQuery)) || (await _userManager.FindByEmailAsync(clientBotForm.Email) != null))
+            // {
+            //     List<ClientBot> clientBotList = await this.ClientBotsAsQueryableAsync.ToListAsync();
+            //     var foundClient = GetClientBotFirstOrDefault(clientBotList, channel: generalQuery.Channel, chatId: generalQuery.ChatId);
+            //     // List<ClientBot> foundClient = await _dbContext.ClientBots
+            //     //                             .Include(x => x.User)
+            //     //                             .ToListAsync();
+            //     // ClientBot foundClient
+            //     //                             .FirstOrDefaultAsync(x =>
+            //     //                                 FunctionsHelper.CheckChatIdByChannel(x, generalQuery.Channel, generalQuery.ChatId)
+            //     //                             );
+            //     foundClient = SetChatIdByChannel(foundClient, clientBotForm, generalQuery);
+            //     _dbContext.ClientBots.Update(foundClient);
+            //     await _dbContext.SaveChangesAsync();
+            //     return new Result<ClientBotViewModel>(_mapper.Map<ClientBotViewModel>(foundClient), "200", "", "");
+            // }
 
             AppUser newUser = new AppUser();
             newUser.UserName = clientBotForm.Email;
@@ -115,10 +204,35 @@ namespace apc_bot_api.Repositories
                         break;
                 }
 
+                // string code = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
 
-                await _dbContext.SaveChangesAsync();
+                // var actionContext = new UrlActionContext();
+                // actionContext.Action = "ConfirmEmail";
+                // actionContext.Controller = "Account";
+                // actionContext.Values = new { userId = newUser.Id, code = code };
+                // actionContext.Protocol = httpContext;
 
-                var resultClientModel = new Result<ClientBotViewModel>(200, "CREATE_SUCCESS");
+                // string callbackUrl = _urlAction(actionContext);
+                // var callbackUrl = _urlAction(
+                //     "ConfirmEmail",
+                //     "Account",
+                //     new { userId = newUser.Id, code = code },
+                //     protocol: httpContext
+                // );
+
+                // EmailHelper _emailHelper = new EmailHelper();
+                // string userFullName = (string.IsNullOrEmpty(newUser.LastName) ? "" : newUser.LastName + " ") +
+                //                         (string.IsNullOrEmpty(newUser.FirstName) ? "" : newUser.FirstName + " ") +
+                //                             (string.IsNullOrEmpty(newUser.MiddleName) ? "" : newUser.MiddleName);
+
+                // string messageText = $"Вы зарегистрировались в \"APC BOT SERVICE\". Для получения рассылки необходимо подтвердить свою электронную почту перейдя по <a href='{callbackUrl}'>ссылке</a>";
+
+                // await _emailHelper.SendEmailAsync(newUser.UserName, userFullName, messageText);
+
+                _dbContext.SaveChanges();
+
+                ClientBotViewModel clientViewModel = _mapper.Map<ClientBotViewModel>(newClient);
+                Result<ClientBotViewModel> resultClientModel = new Result<ClientBotViewModel>(clientViewModel, 200, "CREATE_SUCCESS", "успешно", "Вы успешно зарегистрировались. Чтобы получать рассылку необходимо подтвердить эл. адрес. Мы отправили Вам письмо");
                 resultClientModel.Data.ClientBotId = newClient.Id;
                 return resultClientModel;
             }

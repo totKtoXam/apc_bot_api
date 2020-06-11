@@ -39,15 +39,23 @@ namespace apc_bot_api.Models.Base
                 .ForMember(dest => dest.TypeCode, opt => opt.MapFrom(src => src.Type.Code))
                 .ForMember(dest => dest.TypeCondition, opt => opt.MapFrom(src => src.Type.Condition))
                 .ForMember(dest => dest.TypeDesc, opt => opt.MapFrom(src => src.Type.Description))
-                .ForMember(dest => 
-                dest.ActionList, opt => opt.MapFrom(src => 
+                .ForMember(dest =>
+                dest.ActionList, opt => opt.MapFrom(src =>
                 src.BotActions))
                 ;
 
             // CreateMap<CommandRole, CommandRoleViewModel>()
             //     .ForMember(dest => dest.)
 
-            CreateMap<ClientBot, ClientBotViewModel>();
+            CreateMap<ClientBot, ClientBotViewModel>()
+                .ForMember(dest => dest.ClientBotId,
+                    opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Email,
+                    opt => opt.MapFrom(src => src.User.UserName))
+                .ForMember(dest => dest.Phone,
+                    opt => opt.MapFrom(src => src.User.PhoneNumber))
+                .ForMember(dest => dest.ClientRole,
+                    opt => opt.MapFrom(src => ""));
 
             CreateMap<Student, StudentReceiverViewModel>()
                 .ForMember(dest => dest.ClientId,

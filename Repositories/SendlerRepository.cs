@@ -11,7 +11,7 @@ namespace apc_bot_api.Repositories
 {
     public interface ISendlerRepository
     {
-        SendlerResponse GetStudentReceivers(SendlerPostForm sendlerForm);
+        Result<SendlerResponse> GetStudentReceivers(SendlerPostForm sendlerForm);
     }
     public class SendlerRepository : ISendlerRepository
     {
@@ -35,38 +35,7 @@ namespace apc_bot_api.Repositories
                                                     .Select(x => _mapper.Map<StudentReceiverViewModel>(x))
                                                     .ToList();
 
-        public SendlerResponse GetStudentReceivers(SendlerPostForm sendlerForm)
-        {
-            if (!string.IsNullOrEmpty(sendlerForm.Text))
-            {
-                var hashtags = SendlerHelper.GetHashtagTextFromPost(sendlerForm.Text);
-                hashtags = FunctionsHelper.PrimitiveCleaning(hashtags);
-
-                var receivers = GetReceiversList(hashtags);
-                if (receivers == null)
-                    return null;
-
-                var attachments = sendlerForm.Attachments.Distinct().ToList();
-
-                if (attachments == null || attachments.Count == 0)
-                    return null;
-
-                SendlerResponse response = new SendlerResponse()
-                {
-                    StudentList = receivers,
-                    Text = sendlerForm.Text,
-                    SendingFileList = sendlerForm.Attachments
-                };
-
-                return response;
-            }
-            else
-                return null;
-        }
-
-        private List<StudentReceiverViewModel> GetReceiversList(List<string> hashtags)
-        {
-            var receivers = this.StudentReceiverModelList
+        private List<StudentReceiverViewModel> GetReceiverViewModelList(List<string> hashtags) => this.StudentReceiverModelList
                                                    .Where(x =>
                                                        !string.IsNullOrEmpty(x.Group)
                                                        &&
@@ -76,9 +45,34 @@ namespace apc_bot_api.Repositories
                                                    )
                                                    .ToList();
 
-            if (receivers == null || receivers.Count == 0)
-                return null;
-            return receivers;
+        public Result<SendlerResponse> GetStudentReceivers(SendlerPostForm sendlerForm)
+        {
+            if (sendlerForm.Attachments == null || sendlerForm.Attachments.Count == 0)
+                return
+                    new Result<SendlerResponse>(
+                        new SendlerResponse()
+                        {
+                            StudentList = new List<StudentReceiverViewModel>(),
+                            Text = sendlerForm.Text,
+                            SendingFileList = sendlerForm.Attachments
+                        }
+                    );
+
+            var hashtags = SendlerHelper.GetHashtagTextFromPost(sendlerForm?.Text ?? "");
+            hashtags = FunctionsHelper.PrimitiveCleaning(hashtags);
+
+            var receivers = GetReceiverViewModelList(hashtags);
+
+            var attachments = sendlerForm.Attachments.Distinct().ToList();
+
+            SendlerResponse response = new SendlerResponse()
+            {
+                StudentList = receivers,
+                Text = sendlerForm.Text,
+                SendingFileList = sendlerForm.Attachments
+            };
+
+            return new Result<SendlerResponse>(response);
         }
     }
 }

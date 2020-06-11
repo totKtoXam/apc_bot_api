@@ -20,7 +20,6 @@ namespace apc_bot_api.Models.Base.SeedData
             var teacherRole = _roleManager.FindByNameAsync(RoleConstants.Teacher).GetAwaiter().GetResult();
             var studentRole = _roleManager.FindByNameAsync(RoleConstants.Student).GetAwaiter().GetResult();
 
-
             #region  Start
             var startCommand = _dbContext.Commands.FirstOrDefault(x => x.Code == CommandConstants.Commands.Start);
             if (startCommand == null)
@@ -72,6 +71,22 @@ namespace apc_bot_api.Models.Base.SeedData
 
                 var enrolleeRoleAccessToSendAppel = new CommandRole(sendAppealByEnrolleeCommand, enrolleeRole);
                 _dbContext.CommandRoles.Add(enrolleeRoleAccessToSendAppel);
+            }
+            #endregion
+
+            #region specialities
+            var specsCommand = _dbContext.Commands.FirstOrDefault(x => x.Code == CommandConstants.Commands.Specs);
+            if (specsCommand == null)
+            {
+                specsCommand = new Command
+                {
+                    Name = "специальности",
+                    Code = CommandConstants.Commands.Specs,
+                    Condition = "",
+                    Description = "список всех специальностей",
+                    Type = infoType
+                };
+                _dbContext.Commands.Add(specsCommand);
             }
             #endregion
 

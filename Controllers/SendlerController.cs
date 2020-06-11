@@ -52,15 +52,9 @@ namespace apc_bot_api.Controllers
         [HttpPost("vkpost")]
         public IActionResult CallSendler(SendlerPostForm sendlerForm)
         {
-            if (sendlerForm.Attachments == null || sendlerForm.Attachments.Count == 0)
-                return BadRequest();
-                
             var result = _sendler.GetStudentReceivers(sendlerForm);
-
-            if (result == null)
-                return NotFound();
-            
             return Ok(result);
+            
             // var imageUrl = "https://sun9-11.userapi.com/c840329/v840329318/cdeb/dHft4lHtLao.jpg";/
             // byte[] imageBytes = null;
             // using (WebClient webClient = new WebClient())

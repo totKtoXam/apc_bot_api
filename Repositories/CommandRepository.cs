@@ -43,49 +43,65 @@ namespace apc_bot_api.Repositories
         IQueryable<ClientBot> ClientBots => _dbContext.ClientBots.Include(x => x.User).AsQueryable();
         private async Task<ClientBot> GetClientBotAsync(string userId = null, string chatId = null, string channel = null) =>
                         await this.ClientBots.FirstOrDefaultAsync(x =>
-                                                    string.IsNullOrEmpty(userId) ? x.User.Id == userId
+                                                    string.IsNullOrEmpty(userId)
+                                                        ?
+                                                        x.User.Id == userId
                                                         :
-                                                    string.IsNullOrEmpty(chatId) ? (
-                                                            channel == BotConstants.Channels.Telegram ? x.TeleChatId == chatId
-                                                                :
-                                                            channel == BotConstants.Channels.VKontakte ? x.VkChatId == chatId
-                                                                :
-                                                            channel == BotConstants.Channels.WhatsApp ? x.WhatsAppChatId == chatId
-                                                                :
-                                                            false
-                                                        )
-                                                        :
-                                                    false
+                                                        string.IsNullOrEmpty(chatId)
+                                                            ?
+                                                        FunctionsHelper.CheckChatIdByChannel(x, channel, chatId)
+                                                            // (
+                                                            //         channel == BotConstants.Channels.Telegram ? x.TeleChatId == chatId
+                                                            //             :
+                                                            //         channel == BotConstants.Channels.VKontakte ? x.VkChatId == chatId
+                                                            //             :
+                                                            //         channel == BotConstants.Channels.WhatsApp ? x.WhatsAppChatId == chatId
+                                                            //             :
+                                                            //         false
+                                                            //     )
+                                                            :
+                                                        false
                                                 );
 
-        private async Task<Teacher> GetClientTeacherByChatIdAsync(string chatId, string channel) =>
+        private async Task<Teacher> GetClientTeacherByChatIdAsync(string iin = null, string chatId = null, string channel = null) =>
                         await _dbContext.Teachers
                                         .Include(x => x.ClientBot).ThenInclude(x => x.User)
                                         .FirstOrDefaultAsync(x =>
-                                                channel == BotConstants.Channels.Telegram ? x.ClientBot.TeleChatId == chatId
+                                                string.IsNullOrEmpty(iin)
+                                                    ?
+                                                FunctionsHelper.CheckChatIdByChannel(x.ClientBot, channel, chatId)
+                                                    //     channel == BotConstants.Channels.Telegram ? x.ClientBot.TeleChatId == chatId
+                                                    //         :
+                                                    //     channel == BotConstants.Channels.VKontakte ? x.ClientBot.VkChatId == chatId
+                                                    //         :
+                                                    //     channel == BotConstants.Channels.WhatsApp ? x.ClientBot.WhatsAppChatId == chatId
+                                                    //         :
+                                                    //     false
                                                     :
-                                                channel == BotConstants.Channels.VKontakte ? x.ClientBot.VkChatId == chatId
-                                                    :
-                                                channel == BotConstants.Channels.WhatsApp ? x.ClientBot.WhatsAppChatId == chatId
-                                                    :
-                                                false
+                                                x.IIN == iin
                                             );
 
-        private async Task<Student> GetClientStudentByChatIdAsync(string chatId, string channel) =>
+        private async Task<Student> GetClientStudentByChatIdAsync(string ticketNum = null, string chatId = null, string channel = null) =>
                         await _dbContext.Students
                                         .Include(x => x.ClientBot).ThenInclude(x => x.User)
                                         .FirstOrDefaultAsync(x =>
-                                                channel == BotConstants.Channels.Telegram ? x.ClientBot.TeleChatId == chatId
-                                                    :
-                                                channel == BotConstants.Channels.VKontakte ? x.ClientBot.VkChatId == chatId
-                                                    :
-                                                channel == BotConstants.Channels.WhatsApp ? x.ClientBot.WhatsAppChatId == chatId
-                                                    :
-                                                false
+                                                string.IsNullOrEmpty(ticketNum)
+                                                    ?
+                                                FunctionsHelper.CheckChatIdByChannel(x.ClientBot, channel, chatId)
+                                                   // channel == BotConstants.Channels.Telegram ? x.ClientBot.TeleChatId == chatId
+                                                   //     :
+                                                   // channel == BotConstants.Channels.VKontakte ? x.ClientBot.VkChatId == chatId
+                                                   //     :
+                                                   // channel == BotConstants.Channels.WhatsApp ? x.ClientBot.WhatsAppChatId == chatId
+                                                   //     :
+                                                   // false
+                                                   :
+                                                x.TicketNumber == ticketNum
                                             );
 
         private async Task<Command> GetCommandAsync(string command) =>
                         await this.Commands.FirstOrDefaultAsync(x => x.Code == command);
+        private async Task<List<Speciality>> GetSpecialitiesAsync() => await _dbContext.Specialities.ToListAsync();
 
         // private Task<bool> CheckComandAccessByRole(Command model)
         // {
@@ -136,6 +152,9 @@ namespace apc_bot_api.Repositories
                             return new Result<CommandViewModel>(400, "USER_IS_EXISTS", "Пользователь существует.", "Просим прощения, но Вы уже зарегистрировались в системе, но Вы не подтвердили свою эл. почту: " + foundUser.User.UserName);
                     }
                     break;
+                case CommandConstants.Commands.Specs:
+                    commandViewModel.Message = await GetSpecMessageAsync();
+                    break;
                 default:
                     break;
             }
@@ -152,6 +171,18 @@ namespace apc_bot_api.Repositories
             foreach (Command command in commandList)
             {
                 message += $"/{command.Code} - {command.Description}\n";
+            }
+            return message;
+        }
+
+        private async Task<string> GetSpecMessageAsync()
+        {
+            string message = "Чтобы получить подробное описание о специальности введите её сокращённое название с символом #ВТиПО. Например: #\nСписок специальностей:";
+
+            List<Speciality> specialityList = await GetSpecialitiesAsync();
+            for (int i = 0; i < specialityList.Count; i++)
+            {
+                message += "\n▬▬▬▬▬▬▬▬▬▬▬▬\n\t" + (i + 1).ToString() + ". " + specialityList[i].Short + " - " + (specialityList[i]?.SpecialtyNum ?? "") + specialityList[i].SpecialtyName;
             }
             return message;
         }

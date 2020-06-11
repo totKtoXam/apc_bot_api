@@ -23,15 +23,15 @@ namespace apc_bot_api.Models.Base
         {
             base.OnModelCreating(builder);
 
-        //     builder.Entity<Command>()
-        //             .HasMany(st => st.CommandFiles)
-        //             .WithOne(sf => sf.Command)
-        //             .OnDelete(DeleteBehavior.Cascade);
+            //     builder.Entity<Command>()
+            //             .HasMany(st => st.CommandFiles)
+            //             .WithOne(sf => sf.Command)
+            //             .OnDelete(DeleteBehavior.Cascade);
 
-        //     builder.Entity<Command>()
-        //             .HasMany(st => st.CommandRoles)
-        //             .WithOne(sr => sr.Command)
-        //             .OnDelete(DeleteBehavior.Cascade);
+            //     builder.Entity<Command>()
+            //             .HasMany(st => st.CommandRoles)
+            //             .WithOne(sr => sr.Command)
+            //             .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<CommandFile>()
                     .HasKey(t => new { t.CommandId, t.UploadedFileId });
@@ -45,19 +45,19 @@ namespace apc_bot_api.Models.Base
                     .OnDelete(DeleteBehavior.Cascade);
 
 
-        //     builder.Entity<Information>()
-        //             .HasMany(info => info.InfoFiles)
-        //             .WithOne(infFl => infFl.Info)
-        //             .OnDelete(DeleteBehavior.Cascade);
+            //     builder.Entity<Information>()
+            //             .HasMany(info => info.InfoFiles)
+            //             .WithOne(infFl => infFl.Info)
+            //             .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<InfoFile>()
                     .HasKey(t => new { t.InfoId, t.FileId });
 
 
-        //     builder.Entity<EnrolleeAppeal>()
-        //             .HasMany(ea => ea.EnrolleeAppealFiles)
-        //             .WithOne(eaf => eaf.Appeal)
-        //             .OnDelete(DeleteBehavior.Cascade);
+            //     builder.Entity<EnrolleeAppeal>()
+            //             .HasMany(ea => ea.EnrolleeAppealFiles)
+            //             .WithOne(eaf => eaf.Appeal)
+            //             .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<EnrolleeAppealFile>()
                     .HasKey(t => new { t.AppealId, t.FileId });
@@ -100,5 +100,7 @@ namespace apc_bot_api.Models.Base
         public DbSet<EnrolleeAppeal> EnrolleeAppeals { get; set; }
         public DbSet<EnrolleeAppealFile> EnrolleeAppealFiles { get; set; }
         #endregion
+
+        public DbSet<Speciality> Specialities { get; set; }
     }
 }

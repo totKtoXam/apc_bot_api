@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using apc_bot_api.Constants;
+using apc_bot_api.Models.Bots;
 
 namespace apc_bot_api.Helpers
 {
@@ -29,6 +31,19 @@ namespace apc_bot_api.Helpers
             List<string> list = new List<string>();
             list.AddRange(args);
             return list.Any(x => string.IsNullOrEmpty(x));
+        }
+
+
+
+        public static bool CheckChatIdByChannel(ClientBot data, string channel, string chatId)
+        {
+            if (channel == BotConstants.Channels.Telegram)
+                return (data.TeleChatId == chatId);
+            if (channel == BotConstants.Channels.VKontakte)
+                return (data.VkChatId == chatId);
+            if (channel == BotConstants.Channels.WhatsApp)
+                return (data.WhatsAppChatId == chatId);
+            return false;
         }
     }
 }

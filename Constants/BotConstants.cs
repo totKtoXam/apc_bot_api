@@ -13,10 +13,15 @@ namespace apc_bot_api.Constants
 
         public static class Channels
         {
-            public static readonly string General = "GENERAL";
-            public static readonly string VKontakte = "V_KONTAKTE";
-            public static readonly string Telegram = "TELEGRAM";
-            public static readonly string WhatsApp = "WHATS_APP";
+            public const string General = "GENERAL";
+            public const string VKontakte = "V_KONTAKTE";
+            public const string Telegram = "TELEGRAM";
+            public const string WhatsApp = "WHATS_APP";
+        }
+
+        public enum FoundParams
+        {
+            ByTicket, ByEmail, ByChatId, ByUserId
         }
     }
 }
