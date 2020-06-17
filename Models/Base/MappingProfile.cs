@@ -1,4 +1,5 @@
 using System;
+using apc_bot_api.Models.AssignedTasks;
 using apc_bot_api.Models.Bots;
 using apc_bot_api.Models.Content;
 using apc_bot_api.Models.Sendler;
@@ -126,6 +127,14 @@ namespace apc_bot_api.Models.Base
                     opt => opt.MapFrom(src => src.TicketNumber))
                 .ForMember(dest => dest.Group,
                     opt => opt.MapFrom(src => src.Group));
+
+            CreateMap<AssignedTask, AssignedTaskViewModel>()
+                .ForMember(dest => dest.TeacherFullName,
+                opt => opt.MapFrom(src =>
+                    (src.SetBy.ClientBot.User.LastName ?? "") +
+                    (src.SetBy.ClientBot.User.FirstName ?? "") +
+                    (src.SetBy.ClientBot.User.MiddleName ?? "")
+                    ));
         }
     }
 }

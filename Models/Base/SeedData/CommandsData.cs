@@ -90,6 +90,56 @@ namespace apc_bot_api.Models.Base.SeedData
             }
             #endregion
 
+            #region NewTask
+            var newTask = _dbContext.Commands.FirstOrDefault(x => x.Code == CommandConstants.Commands.NewTask);
+            if (newTask == null)
+            {
+                newTask = new Command
+                {
+                    Name = "новая задача",
+                    Code = CommandConstants.Commands.NewTask,
+                    Condition = "",
+                    Description = "указание новой задачи для студентов",
+                    Message = "Опишите задачу:\n",
+                    Type = actionType
+                };
+                _dbContext.Commands.Add(newTask);
+            }
+            #endregion
+
+            #region ActiveTasks
+            var activeTasks = _dbContext.Commands.FirstOrDefault(x => x.Code == CommandConstants.Commands.ActiveTasks);
+            if (activeTasks == null)
+            {
+                activeTasks = new Command
+                {
+                    Name = "задачи",
+                    Code = CommandConstants.Commands.ActiveTasks,
+                    Condition = "",
+                    Description = "получение списка активных задач",
+                    Type = infoType
+                };
+                _dbContext.Commands.Add(activeTasks);
+            }
+            #endregion
+
+            #region SendAppeal
+            var sendAppeal = _dbContext.Commands.FirstOrDefault(x => x.Code == CommandConstants.Commands.SendAppeal);
+            if (sendAppeal == null)
+            {
+                sendAppeal = new Command
+                {
+                    Name = "заявка",
+                    Code = CommandConstants.Commands.SendAppeal,
+                    Condition = "",
+                    Description = "подача заявки на поступление",
+                    Message = "Укажите свой ИИН:",
+                    Type = infoType
+                };
+                _dbContext.Commands.Add(sendAppeal);
+            }
+            #endregion
+
             #region Help
             var helpCommand = _dbContext.Commands.FirstOrDefault(x => x.Code == CommandConstants.Commands.Help);
             if (helpCommand == null)

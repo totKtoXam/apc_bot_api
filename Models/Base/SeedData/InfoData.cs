@@ -37,7 +37,8 @@ namespace apc_bot_api.Models.Base.SeedData
                     ClassificName = "1304043 «Техник-программист»",
                     Languages = "казахский язык, русский язык",
                     StudyType = "очная, заочная",
-                    StudyPeriod = "на базе 9 классов – 3 года 6 месяцев, на базе 11 класов 2 года 10 месяцев"
+                    StudyPeriod = "на базе 9 классов – 3 года 6 месяцев, на базе 11 класов 2 года 10 месяцев",
+                    Exam = "информатика, математика"
                 };
                 specialityList.Add(software);
             }
@@ -54,7 +55,8 @@ namespace apc_bot_api.Models.Base.SeedData
                     ClassificName = "1305011 — Дизайнер\n1305023 — Техник-программист",
                     Languages = "казахский язык, русский язык",
                     StudyType = "очная, заочная",
-                    StudyPeriod = "на базе 9 классов – 3 года 6 месяцев, на базе 11 класов 2 года 10 месяцев"
+                    StudyPeriod = "на базе 9 классов – 3 года 6 месяцев, на базе 11 класов 2 года 10 месяцев",
+                    Exam = "информатика, математика"
                 };
                 specialityList.Add(infoSys);
             }
@@ -88,7 +90,8 @@ namespace apc_bot_api.Models.Base.SeedData
                     ClassificName = "0507063 «менеджер по сервису»",
                     Languages = "казахский язык, русский язык",
                     StudyType = "очная",
-                    StudyPeriod = "на базе 9 классов 2 года 10 месяцев"
+                    StudyPeriod = "на базе 9 классов 2 года 10 месяцев",
+                    Exam = "каз/рус язык"
                 };
                 specialityList.Add(hostelServ);
             }
@@ -139,24 +142,26 @@ namespace apc_bot_api.Models.Base.SeedData
                     ClassificName = "0518033 Экономист-бухгалтер",
                     Languages = "казахский язык, русский язык",
                     StudyType = "очная",
-                    StudyPeriod = "на базе 9 классов 2 года 10 месяцев"
+                    StudyPeriod = "на базе 9 классов 2 года 10 месяцев",
+                    Exam = "математика, каз/рус язык"
                 };
                 specialityList.Add(uchetAndAudit);
             }
 
-            var tourist = _dbContext.Specialities.FirstOrDefault(x => x.Short == "ТУР");
+            var tourist = _dbContext.Specialities.FirstOrDefault(x => x.Short == "ОТ");
             if (tourist == null)
             {
                 tourist = new Speciality()
                 {
-                    Short = "ТУР",
+                    Short = "ОТ",
                     SpecialtyNum = "",
                     SpecialtyName = "«Туризм»",
                     Price = "195 000 ₸ / год",
                     ClassificName = "0511043 «менеджер»",
                     Languages = "казахский язык, русский язык",
                     StudyType = "очная",
-                    StudyPeriod = "на базе 9 классов — 3 года 10 месяцев"
+                    StudyPeriod = "на базе 9 классов — 3 года 10 месяцев",
+                    Exam = "география, математика, каз/рус язык"
                 };
                 specialityList.Add(tourist);
             }
@@ -173,7 +178,8 @@ namespace apc_bot_api.Models.Base.SeedData
                     ClassificName = "«техник-дизайнер»",
                     Languages = "казахский язык, русский язык",
                     StudyType = "",
-                    StudyPeriod = "на базе 9 классов – 3 года 10 месяцев,"
+                    StudyPeriod = "на базе 9 классов – 3 года 10 месяцев",
+                    Exam = "творческий экзамен, математика, каз/рус язык"
                 };
                 specialityList.Add(designer);
             }

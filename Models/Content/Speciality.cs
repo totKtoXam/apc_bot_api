@@ -13,6 +13,7 @@ namespace apc_bot_api.Models.Content
         public string Languages { get; set; }
         public string StudyType { get; set; }
         public string StudyPeriod { get; set; }
+        public string Exam { get; set; }
     }
 
     public class SpecialityViewModel

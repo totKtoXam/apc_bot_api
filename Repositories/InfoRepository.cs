@@ -32,7 +32,8 @@ namespace apc_bot_api.Repositories
             viewModel.Id = spec.Id;
             viewModel.Short = spec.Short;
             viewModel.Message = $"{spec.SpecialtyNum} - {spec.SpecialtyName}\n\nКлассификации: {spec.ClassificName}\nСтоимость: {spec.Price}\n" +
-                                $"Языки обучения: {spec.Languages}\nФорма обучения: {spec.StudyType}\nПериод обучения: {spec.StudyPeriod}";
+                                $"Языки обучения: {spec.Languages}\nФорма обучения: {spec.StudyType}\nПериод обучения: {spec.StudyPeriod}\n" +
+                                $"Вступительные экзамены: {spec.Exam}";
             return new Result<SpecialityViewModel>(viewModel);
         }
     }

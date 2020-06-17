@@ -5,8 +5,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using apc_bot_api.Constants;
 using apc_bot_api.Helpers;
+using apc_bot_api.Models.AssignedTasks;
 using apc_bot_api.Models.Base;
 using apc_bot_api.Models.Bots;
+using apc_bot_api.Models.Sendler;
 using apc_bot_api.Models.Users;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
@@ -23,6 +25,7 @@ namespace apc_bot_api.Repositories
         Task<List<BotActionViewModel>> GetBotActionsByPrevCommandCodeAsync(string commandCode);
         // Task<ClientBotViewModel> PostClientAsync(ClientBotForm clientForm, string actCode = null);
         Task<Result<ClientBotViewModel>> CreateBotClientAsync(GeneralQuery generalQuery, ClientBotForm clientBotForm);
+        Task<Result<SendlerTaskViewModel>> CreateAssignedTaskAsync(GeneralQuery generalQuery, AssignedTaskForm taskForm);
     }
     public class BotRepository : IBotRepository
     {
@@ -50,6 +53,17 @@ namespace apc_bot_api.Repositories
                                     .FirstOrDefaultAsync(x => x.Code == actCode);
 
         private IQueryable<ClientBot> ClientBotsAsQueryableAsync => _dbContext.ClientBots.Include(x => x.User).AsQueryable();
+
+        private List<StudentReceiverViewModel> StudentReceiverModelList => _dbContext.Students
+                                                    .Include(x => x.ClientBot)
+                                                    .ThenInclude(x => x.User)
+                                                    .Where(x => x.ClientBot.TeleChatId != null || x.ClientBot.VkChatId != null || x.ClientBot.WhatsAppChatId != null)
+                                                    .Select(x => _mapper.Map<StudentReceiverViewModel>(x))
+                                                    .ToList();
+
+        private List<StudentReceiverViewModel> GetReceiverViewModelList(string groupName) => this.StudentReceiverModelList
+                                                   .Where(x => FunctionsHelper.PrimitiveCleaning(x.Group.ToUpper()) == groupName.ToUpper())
+                                                   .ToList();
 
         private ClientBot GetClientBotFirstOrDefault
         (List<ClientBot> source, string userId = null, string chatId = null, string channel = null, string email = null) =>
@@ -391,6 +405,48 @@ namespace apc_bot_api.Repositories
             // }
 
             return client;
+        }
+
+        public async Task<Result<SendlerTaskViewModel>> CreateAssignedTaskAsync(GeneralQuery generalQuery, AssignedTaskForm taskForm)
+        {
+            Teacher teacher = await _dbContext.Teachers
+                                    .Include(x => x.ClientBot)
+                                    .ThenInclude(x => x.User)
+                                    .FirstOrDefaultAsync(x =>
+                                        generalQuery.Channel == BotConstants.Channels.Telegram ?
+                                            x.ClientBot.TeleChatId == generalQuery.ChatId
+                                        :
+                                        generalQuery.Channel == BotConstants.Channels.VKontakte ?
+                                            x.ClientBot.VkChatId == generalQuery.ChatId
+                                        :
+                                        generalQuery.Channel == BotConstants.Channels.WhatsApp ?
+                                            x.ClientBot.WhatsAppChatId == generalQuery.ChatId
+                                        :
+                                            false
+                                    );
+
+            if (teacher == null)
+                return new Result<SendlerTaskViewModel>(404, "TEACHER_NOT_FOUND", _message: "Пользователь не найден");
+
+            string groupName = FunctionsHelper.PrimitiveCleaning(teacher.Group);
+
+            AssignedTask newTask = new AssignedTask()
+            {
+                SetBy = teacher,
+                Text = taskForm.Text,
+                StartDate = DateTime.Now,
+                FinishDate = new DateTime(taskForm.Year, taskForm.Month, taskForm.Day),
+                IsActive = true
+            };
+
+            await _dbContext.AssignedTasks.AddAsync(newTask);
+            await _dbContext.SaveChangesAsync();
+
+            List<StudentReceiverViewModel> receivers = GetReceiverViewModelList(groupName);
+            SendlerTaskViewModel resultData = new SendlerTaskViewModel(receivers, _mapper.Map<AssignedTaskViewModel>(newTask));
+
+            Result<SendlerTaskViewModel> result = new Result<SendlerTaskViewModel>(resultData);
+            return result;
         }
     }
 }

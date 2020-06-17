@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using apc_bot_api.Models.Base;
@@ -9,9 +10,10 @@ using apc_bot_api.Models.Base;
 namespace apc_bot_api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200617180803_AssignedTask")]
+    partial class AssignedTask
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -199,7 +201,7 @@ namespace apc_bot_api.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<DateTime>("FinishDate")
+                    b.Property<DateTime>("Finish")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsActive")
@@ -208,7 +210,7 @@ namespace apc_bot_api.Migrations
                     b.Property<int?>("SetById")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("StartDate")
+                    b.Property<DateTime>("Start")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Text")

@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using apc_bot_api.Helpers;
+using apc_bot_api.Models.AssignedTasks;
 using apc_bot_api.Models.Base;
 using apc_bot_api.Models.Bots;
 using apc_bot_api.Models.Content;
@@ -115,6 +116,13 @@ namespace apc_bot_api.Controllers
                     await _emailHelper.SendEmailAsync(foundUser.Email, userFullName, messageText);
                 }
             }
+            return Ok(resultModel);
+        }
+
+        [HttpPost("createTask")]
+        public async Task<IActionResult> CreateNewAssignedTask([FromQuery] GeneralQuery generalQuery, [FromBody] AssignedTaskForm taskForm)
+        {
+            var resultModel = await _botRepos.CreateAssignedTaskAsync(generalQuery, taskForm);
             return Ok(resultModel);
         }
 

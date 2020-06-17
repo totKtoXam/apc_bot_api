@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using apc_bot_api.Constants;
 using apc_bot_api.Helpers;
+using apc_bot_api.Models.AssignedTasks;
 using apc_bot_api.Models.Base;
 using apc_bot_api.Models.Bots;
 using apc_bot_api.Models.Content;
@@ -32,7 +32,7 @@ namespace apc_bot_api.Repositories
             _dbContext = dbContext;
             _mapper = mapper;
         }
-        IQueryable<Command> Commands => _dbContext.Commands
+        IQueryable<Command> IQCommands => _dbContext.Commands
                                                 .Include(x => x.Type)
                                                 .Include(x => x.BotActions)
                                                 .AsQueryable();
@@ -40,9 +40,15 @@ namespace apc_bot_api.Repositories
         //                 await this.BotActions
         //                             .Select(x => _mapper.Map<BotActionViewModel>(x))
         //                             .FirstOrDefaultAsync(x => x.Code == actCode);
-        IQueryable<ClientBot> ClientBots => _dbContext.ClientBots.Include(x => x.User).AsQueryable();
+        IQueryable<ClientBot> IQClientBots => _dbContext.ClientBots.Include(x => x.User).AsQueryable();
+        IQueryable<AssignedTask> IQAssignedTasks => _dbContext.AssignedTasks
+                                                        .Include(x => x.SetBy)
+                                                        .ThenInclude(x => x.ClientBot)
+                                                        .ThenInclude(x => x.User)
+                                                        .AsQueryable();
+
         private async Task<ClientBot> GetClientBotAsync(string userId = null, string chatId = null, string channel = null) =>
-                        await this.ClientBots.FirstOrDefaultAsync(x =>
+                        await this.IQClientBots.FirstOrDefaultAsync(x =>
                                                     string.IsNullOrEmpty(userId)
                                                         ?
                                                         x.User.Id == userId
@@ -100,7 +106,7 @@ namespace apc_bot_api.Repositories
                                             );
 
         private async Task<Command> GetCommandAsync(string command) =>
-                        await this.Commands.FirstOrDefaultAsync(x => x.Code == command);
+                        await this.IQCommands.FirstOrDefaultAsync(x => x.Code == command);
         private async Task<List<Speciality>> GetSpecialitiesAsync() => await _dbContext.Specialities.ToListAsync();
 
         // private Task<bool> CheckComandAccessByRole(Command model)
@@ -110,7 +116,7 @@ namespace apc_bot_api.Repositories
 
         public async Task<Result<List<CommandViewModel>>> GetCommandListAsync(GeneralQuery gnrlQueryData)
         {
-            var commandList = await this.Commands.Select(x => _mapper.Map<CommandViewModel>(x)).ToListAsync();
+            var commandList = await this.IQCommands.Select(x => _mapper.Map<CommandViewModel>(x)).ToListAsync();
 
             return new Result<List<CommandViewModel>>(commandList);
         }
@@ -155,6 +161,9 @@ namespace apc_bot_api.Repositories
                 case CommandConstants.Commands.Specs:
                     commandViewModel.Message = await GetSpecMessageAsync();
                     break;
+                case CommandConstants.Commands.ActiveTasks:
+                    commandViewModel.Message = await GetActiveTasksAsync();
+                    break;
                 default:
                     break;
             }
@@ -164,10 +173,23 @@ namespace apc_bot_api.Repositories
             return result;
         }
 
+        // private async Task<>
+
+        private async Task<string> GetActiveTasksAsync()
+        {
+            string message = "", divider = "\n============\n";
+            List<AssignedTask> taskList = await this.IQAssignedTasks.Where(x => x.IsActive || x.FinishDate < DateTime.Now).ToListAsync();
+            foreach (AssignedTask taskItem in taskList)
+            {
+                message += $"{(taskItem != taskList[0] ? divider : "")}Номер: {taskItem.Id}\nОписание: {taskItem.Text}\nДата начало (от): {taskItem.StartDate}\nСрок выполнения (до): {taskItem.FinishDate}";
+            }
+            return message;
+        }
+
         private async Task<string> GetHelpMessageAsync()
         {
             string message = "";
-            var commandList = await this.Commands.ToListAsync();
+            var commandList = await this.IQCommands.ToListAsync();
             foreach (Command command in commandList)
             {
                 message += $"/{command.Code} - {command.Description}\n";

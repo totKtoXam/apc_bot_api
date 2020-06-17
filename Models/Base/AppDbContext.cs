@@ -1,4 +1,5 @@
 using apc_bot_api.Models.Appeals;
+using apc_bot_api.Models.AssignedTasks;
 using apc_bot_api.Models.Bots;
 using apc_bot_api.Models.Content;
 using apc_bot_api.Models.Types;
@@ -102,5 +103,7 @@ namespace apc_bot_api.Models.Base
         #endregion
 
         public DbSet<Speciality> Specialities { get; set; }
+
+        public DbSet<AssignedTask> AssignedTasks { get; set; }
     }
 }

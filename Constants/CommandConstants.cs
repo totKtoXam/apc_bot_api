@@ -11,7 +11,9 @@ namespace apc_bot_api.Constants
             public const string Help = "help";
             public const string AboutUs = "aboutUs";
             public const string Specs = "specs";
-            public const string SendAppeal = "sendAppeal";
+            public const string SendAppeal = "sendappeal";
+            public const string NewTask = "newtask";
+            public const string ActiveTasks = "activetasks";
         }
 
         public static class Types
