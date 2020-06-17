@@ -23,6 +23,6 @@ namespace apc_bot_api.Models.Content
         public Guid CommandId { get; set; }
         [Key]
         [ForeignKey("UploadedFile")]
-        public Guid UploadedFileId { get; set; }
+        public int FileId { get; set; }
     }
 }

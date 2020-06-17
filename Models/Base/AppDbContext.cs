@@ -34,7 +34,7 @@ namespace apc_bot_api.Models.Base
             //             .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<CommandFile>()
-                    .HasKey(t => new { t.CommandId, t.UploadedFileId });
+                    .HasKey(t => new { t.CommandId, t.FileId });
 
             builder.Entity<CommandRole>()
                     .HasKey(t => new { t.CommandId, t.RoleId });
